@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
 import { debounce, generateId } from '../utils/helpers';
+import { gerarDadosCompletos } from '../utils/demoData';
 
 // Initial state
 const initialState = {
@@ -15,72 +16,11 @@ const initialState = {
     { id: '1', name: '24/25', active: true, createdAt: new Date() }
   ],
   
-  // Entities com dados de exemplo
-  clients: [
-    {
-      id: 'client-1',
-      nome: 'João Silva',
-      empresa: 'Fazenda São João',
-      email: 'joao@fazenda.com',
-      telefone: '(11) 99999-9999',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'client-2', 
-      nome: 'Maria Santos',
-      empresa: 'Agro Maria',
-      email: 'maria@agro.com',
-      telefone: '(11) 88888-8888',
-      createdAt: new Date().toISOString()
-    }
-  ],
-  employees: [
-    {
-      id: 'emp-1',
-      nomeCompleto: 'Carlos Piloto',
-      telefone: '(11) 77777-7777',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'emp-2',
-      nomeCompleto: 'Ana Técnica',
-      telefone: '(11) 66666-6666', 
-      createdAt: new Date().toISOString()
-    }
-  ],
-  aircrafts: [
-    {
-      id: 'aircraft-1',
-      modelo: 'Cessna 152',
-      prefixo: 'PP-ABC',
-      horimetroAtual: 1250.5,
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'aircraft-2',
-      modelo: 'Piper Cherokee',
-      prefixo: 'PP-XYZ',
-      horimetroAtual: 890.2,
-      createdAt: new Date().toISOString()
-    }
-  ],
-  cultures: [
-    {
-      id: 'culture-1',
-      nome: 'Soja',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'culture-2',
-      nome: 'Milho',
-      createdAt: new Date().toISOString()
-    },
-    {
-      id: 'culture-3',
-      nome: 'Algodão',
-      createdAt: new Date().toISOString()
-    }
-  ],
+  // Entities - inicialmente vazios
+  clients: [],
+  employees: [],
+  aircrafts: [],
+  cultures: [],
   services: [],
   
   // UI state
@@ -412,6 +352,28 @@ export function AppProvider({ children }) {
     dispatch({ type: actionTypes.ADD_HARVEST, payload: newSafra });
   };
   
+  // Populate system with demo data
+  const populateSystemDemo = () => {
+    console.log('🚀 Populando sistema com dados de demonstração...');
+    
+    try {
+      const dadosDemo = gerarDadosCompletos();
+      
+      // Carrega todos os dados de uma vez
+      dispatch({ type: actionTypes.SET_CLIENTS, payload: dadosDemo.clients });
+      dispatch({ type: actionTypes.SET_EMPLOYEES, payload: dadosDemo.employees });
+      dispatch({ type: actionTypes.SET_AIRCRAFTS, payload: dadosDemo.aircrafts });
+      dispatch({ type: actionTypes.SET_CULTURES, payload: dadosDemo.cultures });
+      dispatch({ type: actionTypes.SET_SERVICES, payload: dadosDemo.services });
+      
+      console.log('✅ Sistema populado com sucesso!');
+      return true;
+    } catch (error) {
+      console.error('❌ Erro ao popular sistema:', error);
+      return false;
+    }
+  };
+  
   // Get current safra name
   const currentSafra = state.currentHarvest?.name;
   
@@ -421,7 +383,8 @@ export function AppProvider({ children }) {
     actionTypes,
     clearAllData,
     setCurrentSafra,
-    currentSafra
+    currentSafra,
+    populateSystemDemo
   };
   
   return (

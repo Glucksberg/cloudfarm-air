@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 
 function Settings() {
-  const { currentSafra, setCurrentSafra, clearAllData } = useApp();
+  const { currentSafra, setCurrentSafra, clearAllData, populateSystemDemo } = useApp();
   const { services, clearServices, importServices } = useServices();
   const { clients, clearClients, importClients } = useClients();
   const { employees, clearEmployees, importEmployees } = useEmployees();
@@ -31,6 +31,7 @@ function Settings() {
   const [isImporting, setIsImporting] = useState(false);
   const [importStatus, setImportStatus] = useState(null);
   const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [isPopulating, setIsPopulating] = useState(false);
   
   // Generate current safra if not set
   const getCurrentSafra = () => {
@@ -183,6 +184,36 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
     } else {
       setShowClearConfirm(true);
       setTimeout(() => setShowClearConfirm(false), 10000); // Auto-cancel after 10s
+    }
+  };
+  
+  // Populate system with demo data
+  const handlePopulateSystem = () => {
+    setIsPopulating(true);
+    
+    try {
+      const success = populateSystemDemo();
+      
+      if (success) {
+        setImportStatus({
+          type: 'success',
+          message: 'Sistema populado com 25 clientes, 5 funcionários, 8 aeronaves, 12 culturas e 120 serviços!'
+        });
+      } else {
+        setImportStatus({
+          type: 'error',
+          message: 'Erro ao popular sistema. Tente novamente.'
+        });
+      }
+    } catch (error) {
+      console.error('Error populating system:', error);
+      setImportStatus({
+        type: 'error',
+        message: 'Erro ao popular sistema. Tente novamente.'
+      });
+    } finally {
+      setIsPopulating(false);
+      setTimeout(() => setImportStatus(null), 5000);
     }
   };
   
@@ -342,6 +373,37 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
             </div>
             <div className="cf-text-small text-orange-600 cf-mt-2">
               ⚠️ Importar substituirá todos os dados atuais
+            </div>
+          </div>
+        </div>
+      </Card>
+      
+      {/* Demo Data */}
+      <Card title="Dados de Demonstração">
+        <div className="space-y-4">
+          <div>
+            <div className="cf-text-small cf-bold cf-mb-2 text-green-600">
+              Popular Sistema para Demonstração
+            </div>
+            <div className="cf-text-small text-gray-600 cf-mb-3">
+              Gera automaticamente dados realistas para testar o sistema:
+              <br />• 25 clientes com empresas variadas
+              <br />• 5 funcionários
+              <br />• 8 aeronaves de diferentes modelos
+              <br />• 12 culturas
+              <br />• 120 serviços distribuídos ao longo do ano
+            </div>
+            <Button
+              onClick={handlePopulateSystem}
+              disabled={isPopulating}
+              className="w-full"
+              variant="outline"
+            >
+              <Database size={20} className="mr-2" />
+              {isPopulating ? 'Populando Sistema...' : 'Popular Sistema para Demonstração'}
+            </Button>
+            <div className="cf-text-small text-blue-600 cf-mt-2">
+              💡 Ideal para testar funcionalidades como relatórios, busca e performance
             </div>
           </div>
         </div>
