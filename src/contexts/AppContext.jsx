@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
-import { debounce } from '../utils/helpers';
+import { debounce, generateId } from '../utils/helpers';
 
 // Initial state
 const initialState = {
@@ -392,10 +392,36 @@ export function AppProvider({ children }) {
     debouncedSave(dataToSave);
   }, [state.currentHarvest, state.harvests, state.clients, state.employees, state.aircrafts, state.cultures, state.services, debouncedSave]);
   
+  // Clear all data function
+  const clearAllData = () => {
+    console.log('🗑️ Limpando todos os dados...');
+    dispatch({ type: actionTypes.RESET_DATA });
+    localStorage.removeItem('cloudfarm-data');
+    console.log('✅ Todos os dados foram removidos!');
+  };
+  
+  // Set current safra function
+  const setCurrentSafra = (safraName) => {
+    const newSafra = {
+      id: generateId(),
+      name: safraName,
+      active: true,
+      createdAt: new Date()
+    };
+    dispatch({ type: actionTypes.SET_CURRENT_HARVEST, payload: newSafra });
+    dispatch({ type: actionTypes.ADD_HARVEST, payload: newSafra });
+  };
+  
+  // Get current safra name
+  const currentSafra = state.currentHarvest?.name;
+  
   const value = {
     state,
     dispatch,
-    actionTypes
+    actionTypes,
+    clearAllData,
+    setCurrentSafra,
+    currentSafra
   };
   
   return (

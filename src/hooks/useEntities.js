@@ -33,12 +33,22 @@ export function useClients() {
     return state.clients.find(client => client.id === id);
   };
   
+  const clearClients = () => {
+    dispatch({ type: actionTypes.SET_CLIENTS, payload: [] });
+  };
+  
+  const importClients = (clientsData) => {
+    dispatch({ type: actionTypes.SET_CLIENTS, payload: clientsData });
+  };
+  
   return {
     clients: state.clients,
     addClient,
     updateClient,
     deleteClient,
-    getClientById
+    getClientById,
+    clearClients,
+    importClients
   };
 }
 
@@ -74,12 +84,22 @@ export function useEmployees() {
     return state.employees.find(employee => employee.id === id);
   };
   
+  const clearEmployees = () => {
+    dispatch({ type: actionTypes.SET_EMPLOYEES, payload: [] });
+  };
+  
+  const importEmployees = (employeesData) => {
+    dispatch({ type: actionTypes.SET_EMPLOYEES, payload: employeesData });
+  };
+  
   return {
     employees: state.employees,
     addEmployee,
     updateEmployee,
     deleteEmployee,
-    getEmployeeById
+    getEmployeeById,
+    clearEmployees,
+    importEmployees
   };
 }
 
@@ -115,12 +135,22 @@ export function useAircrafts() {
     return state.aircrafts.find(aircraft => aircraft.id === id);
   };
   
+  const clearAircrafts = () => {
+    dispatch({ type: actionTypes.SET_AIRCRAFTS, payload: [] });
+  };
+  
+  const importAircrafts = (aircraftsData) => {
+    dispatch({ type: actionTypes.SET_AIRCRAFTS, payload: aircraftsData });
+  };
+  
   return {
     aircrafts: state.aircrafts,
     addAircraft,
     updateAircraft,
     deleteAircraft,
-    getAircraftById
+    getAircraftById,
+    clearAircrafts,
+    importAircrafts
   };
 }
 
@@ -156,12 +186,22 @@ export function useCultures() {
     return state.cultures.find(culture => culture.id === id);
   };
   
+  const clearCultures = () => {
+    dispatch({ type: actionTypes.SET_CULTURES, payload: [] });
+  };
+  
+  const importCultures = (culturesData) => {
+    dispatch({ type: actionTypes.SET_CULTURES, payload: culturesData });
+  };
+  
   return {
     cultures: state.cultures,
     addCulture,
     updateCulture,
     deleteCulture,
-    getCultureById
+    getCultureById,
+    clearCultures,
+    importCultures
   };
 }
 
@@ -201,6 +241,14 @@ export function useServices() {
     return state.services.filter(service => service.safraId === state.currentHarvest.id);
   };
   
+  const clearServices = () => {
+    dispatch({ type: actionTypes.SET_SERVICES, payload: [] });
+  };
+  
+  const importServices = (servicesData) => {
+    dispatch({ type: actionTypes.SET_SERVICES, payload: servicesData });
+  };
+  
   return {
     services: state.services,
     currentHarvestServices: getServicesForCurrentHarvest(),
@@ -208,7 +256,9 @@ export function useServices() {
     updateService,
     deleteService,
     getServiceById,
-    getServicesForCurrentHarvest
+    getServicesForCurrentHarvest,
+    clearServices,
+    importServices
   };
 }
 
