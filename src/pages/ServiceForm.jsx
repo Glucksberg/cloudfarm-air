@@ -94,19 +94,64 @@ function ServiceForm() {
     
     files.forEach(file => {
       if (file.type.startsWith('image/')) {
+        // Limit file size to 2MB
+        if (file.size > 2 * 1024 * 1024) {
+          alert(`A imagem ${file.name} é muito grande (máximo 2MB). Por favor, escolha uma imagem menor.`);
+          return;
+        }
+        
         const reader = new FileReader();
         reader.onload = (e) => {
-          const newPhoto = {
-            id: Date.now() + Math.random(),
-            name: file.name,
-            dataUrl: e.target.result,
-            size: file.size
+          // Create image element for compression
+          const img = new Image();
+          img.onload = () => {
+            // Create canvas for compression
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Calculate compressed dimensions (max 800x600)
+            let { width, height } = img;
+            const maxWidth = 800;
+            const maxHeight = 600;
+            
+            if (width > height) {
+              if (width > maxWidth) {
+                height = (height * maxWidth) / width;
+                width = maxWidth;
+              }
+            } else {
+              if (height > maxHeight) {
+                width = (width * maxHeight) / height;
+                height = maxHeight;
+              }
+            }
+            
+            canvas.width = width;
+            canvas.height = height;
+            
+            // Draw compressed image
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            // Convert to compressed dataUrl (60% quality)
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+            
+            // Generate secure ID using crypto if available
+            const photoId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            
+            const newPhoto = {
+              id: photoId,
+              name: file.name,
+              dataUrl: compressedDataUrl,
+              originalSize: file.size,
+              compressedSize: Math.round((compressedDataUrl.length * 3) / 4) // Approximate size
+            };
+            
+            setFormData(prev => ({
+              ...prev,
+              fotos: [...prev.fotos, newPhoto]
+            }));
           };
-          
-          setFormData(prev => ({
-            ...prev,
-            fotos: [...prev.fotos, newPhoto]
-          }));
+          img.src = e.target.result;
         };
         reader.readAsDataURL(file);
       }

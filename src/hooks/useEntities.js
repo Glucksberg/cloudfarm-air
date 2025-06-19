@@ -1,4 +1,5 @@
 import { useApp } from '../contexts/AppContext';
+import { generateId } from '../utils/helpers';
 
 // Hook for managing clients
 export function useClients() {
@@ -6,10 +7,9 @@ export function useClients() {
   
   const addClient = (clientData) => {
     const newClient = {
-      id: Date.now().toString(),
       ...clientData,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: generateId(),
+      createdAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.ADD_CLIENT, payload: newClient });
     return newClient;
@@ -19,7 +19,7 @@ export function useClients() {
     const updatedClient = {
       ...clientData,
       id,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.UPDATE_CLIENT, payload: updatedClient });
     return updatedClient;
@@ -48,10 +48,9 @@ export function useEmployees() {
   
   const addEmployee = (employeeData) => {
     const newEmployee = {
-      id: Date.now().toString(),
       ...employeeData,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: generateId(),
+      createdAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.ADD_EMPLOYEE, payload: newEmployee });
     return newEmployee;
@@ -61,7 +60,7 @@ export function useEmployees() {
     const updatedEmployee = {
       ...employeeData,
       id,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.UPDATE_EMPLOYEE, payload: updatedEmployee });
     return updatedEmployee;
@@ -90,11 +89,9 @@ export function useAircrafts() {
   
   const addAircraft = (aircraftData) => {
     const newAircraft = {
-      id: Date.now().toString(),
       ...aircraftData,
-      horimetroAtual: aircraftData.horimetroAtual || 0,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: generateId(),
+      createdAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.ADD_AIRCRAFT, payload: newAircraft });
     return newAircraft;
@@ -104,7 +101,7 @@ export function useAircrafts() {
     const updatedAircraft = {
       ...aircraftData,
       id,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.UPDATE_AIRCRAFT, payload: updatedAircraft });
     return updatedAircraft;
@@ -133,10 +130,9 @@ export function useCultures() {
   
   const addCulture = (cultureData) => {
     const newCulture = {
-      id: Date.now().toString(),
       ...cultureData,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: generateId(),
+      createdAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.ADD_CULTURE, payload: newCulture });
     return newCulture;
@@ -146,7 +142,7 @@ export function useCultures() {
     const updatedCulture = {
       ...cultureData,
       id,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.UPDATE_CULTURE, payload: updatedCulture });
     return updatedCulture;
@@ -175,11 +171,9 @@ export function useServices() {
   
   const addService = (serviceData) => {
     const newService = {
-      id: Date.now().toString(),
       ...serviceData,
-      safraId: state.currentHarvest.id,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: generateId(),
+      createdAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.ADD_SERVICE, payload: newService });
     return newService;
@@ -189,7 +183,7 @@ export function useServices() {
     const updatedService = {
       ...serviceData,
       id,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.UPDATE_SERVICE, payload: updatedService });
     return updatedService;
@@ -224,11 +218,9 @@ export function useHarvests() {
   
   const addHarvest = (harvestData) => {
     const newHarvest = {
-      id: Date.now().toString(),
       ...harvestData,
-      active: false,
-      createdAt: new Date(),
-      updatedAt: new Date()
+      id: generateId(),
+      createdAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.ADD_HARVEST, payload: newHarvest });
     return newHarvest;
@@ -238,7 +230,7 @@ export function useHarvests() {
     const updatedHarvest = {
       ...harvestData,
       id,
-      updatedAt: new Date()
+      updatedAt: new Date().toISOString()
     };
     dispatch({ type: actionTypes.UPDATE_HARVEST, payload: updatedHarvest });
     return updatedHarvest;

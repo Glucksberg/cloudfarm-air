@@ -2,7 +2,17 @@
 
 // Generate unique ID
 export const generateId = () => {
-  return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+  // Use crypto.randomUUID if available (secure)
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  
+  // Fallback for older browsers - more robust than Date.now() alone
+  const timestamp = Date.now().toString(36);
+  const randomPart = Math.random().toString(36).substr(2, 9);
+  const extraRandom = Math.random().toString(36).substr(2, 5);
+  
+  return `${timestamp}-${randomPart}-${extraRandom}`;
 };
 
 // Format date for input fields
