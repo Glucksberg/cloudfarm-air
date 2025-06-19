@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useReducer, useEffect } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, useRef } from 'react';
+import { debounce } from '../utils/helpers';
 
 // Initial state
 const initialState = {
@@ -14,11 +15,72 @@ const initialState = {
     { id: '1', name: '24/25', active: true, createdAt: new Date() }
   ],
   
-  // Entities
-  clients: [],
-  employees: [],
-  aircrafts: [],
-  cultures: [],
+  // Entities com dados de exemplo
+  clients: [
+    {
+      id: 'client-1',
+      nome: 'João Silva',
+      empresa: 'Fazenda São João',
+      email: 'joao@fazenda.com',
+      telefone: '(11) 99999-9999',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'client-2', 
+      nome: 'Maria Santos',
+      empresa: 'Agro Maria',
+      email: 'maria@agro.com',
+      telefone: '(11) 88888-8888',
+      createdAt: new Date().toISOString()
+    }
+  ],
+  employees: [
+    {
+      id: 'emp-1',
+      nomeCompleto: 'Carlos Piloto',
+      telefone: '(11) 77777-7777',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'emp-2',
+      nomeCompleto: 'Ana Técnica',
+      telefone: '(11) 66666-6666', 
+      createdAt: new Date().toISOString()
+    }
+  ],
+  aircrafts: [
+    {
+      id: 'aircraft-1',
+      modelo: 'Cessna 152',
+      prefixo: 'PP-ABC',
+      horimetroAtual: 1250.5,
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'aircraft-2',
+      modelo: 'Piper Cherokee',
+      prefixo: 'PP-XYZ',
+      horimetroAtual: 890.2,
+      createdAt: new Date().toISOString()
+    }
+  ],
+  cultures: [
+    {
+      id: 'culture-1',
+      nome: 'Soja',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'culture-2',
+      nome: 'Milho',
+      createdAt: new Date().toISOString()
+    },
+    {
+      id: 'culture-3',
+      nome: 'Algodão',
+      createdAt: new Date().toISOString()
+    }
+  ],
   services: [],
   
   // UI state
@@ -274,21 +336,48 @@ const AppContext = createContext();
 // Provider component
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
+  const saveTimeoutRef = useRef(null);
   
   // Load data from localStorage on mount
   useEffect(() => {
+    console.log('🔄 Carregando dados do localStorage...');
     const savedData = localStorage.getItem('cloudfarm-data');
     if (savedData) {
       try {
         const parsedData = JSON.parse(savedData);
+        console.log('✅ Dados encontrados no localStorage:', parsedData);
         dispatch({ type: actionTypes.LOAD_DATA, payload: parsedData });
       } catch (error) {
-        console.error('Error loading saved data:', error);
+        console.error('❌ Erro ao carregar dados salvos:', error);
       }
+    } else {
+      console.log('ℹ️ Nenhum dado encontrado no localStorage, usando dados padrão');
     }
   }, []);
   
-  // Save data to localStorage whenever state changes
+  // Debounced save function
+  const debouncedSave = useRef(
+    debounce((dataToSave) => {
+      try {
+        localStorage.setItem('cloudfarm-data', JSON.stringify(dataToSave));
+        console.log('💾 Dados salvos no localStorage:', {
+          clients: dataToSave.clients.length,
+          employees: dataToSave.employees.length,
+          aircrafts: dataToSave.aircrafts.length,
+          cultures: dataToSave.cultures.length,
+          services: dataToSave.services.length
+        });
+      } catch (error) {
+        console.error('❌ Erro ao salvar dados no localStorage:', error);
+        // Handle localStorage quota exceeded
+        if (error.name === 'QuotaExceededError') {
+          alert('Armazenamento local cheio. Considere fazer backup e limpar dados antigos.');
+        }
+      }
+    }, 500)
+  ).current;
+  
+  // Save data to localStorage whenever state changes (debounced)
   useEffect(() => {
     const dataToSave = {
       currentHarvest: state.currentHarvest,
@@ -300,8 +389,8 @@ export function AppProvider({ children }) {
       services: state.services
     };
     
-    localStorage.setItem('cloudfarm-data', JSON.stringify(dataToSave));
-  }, [state]);
+    debouncedSave(dataToSave);
+  }, [state.currentHarvest, state.harvests, state.clients, state.employees, state.aircrafts, state.cultures, state.services, debouncedSave]);
   
   const value = {
     state,
