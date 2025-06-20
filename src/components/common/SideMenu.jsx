@@ -11,7 +11,8 @@ import {
   BarChart3,
   X,
   Home,
-  ChevronRight
+  ChevronRight,
+  MapPin
 } from 'lucide-react';
 
 function SideMenu() {
@@ -34,7 +35,8 @@ function SideMenu() {
       section: 'Operações',
       icon: <FileText size={20} />,
       items: [
-        { path: '/servicos', label: 'Lista de Serviços', icon: <FileText size={16} /> }
+        { path: '/servicos', label: 'Lista de Serviços', icon: <FileText size={16} /> },
+        { path: '/servicos/mapa', label: 'Mapa de Serviços', icon: <MapPin size={16} /> }
       ]
     },
     {

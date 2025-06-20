@@ -2,14 +2,14 @@
 
 // Service types with icons and colors
 export const SERVICE_TYPES = [
-  { id: 'fungicida', name: 'Fungicida', icon: '🐾', color: '#006494' },
+  { id: 'fungicida', name: 'Fungicida', icon: '🍄', color: '#006494' },
   { id: 'inseticida', name: 'Inseticida', icon: '🐛', color: '#0582CA' },
   { id: 'fertilizante', name: 'Fertilizante', icon: '🌾', color: '#00A6FB' },
-  { id: 'adubacao', name: 'Adubação', icon: '🌱', color: '#0CB0A9' },
+  { id: 'biologico', name: 'Biológico', icon: '🦠', color: '#0CB0A9' },
   { id: 'semeadura', name: 'Semeadura', icon: '🌱', color: '#40C9A2' },
-  { id: 'dessecacao', name: 'Dessecação', icon: '🌵', color: '#84D2F6' },
+  { id: 'dessecacao', name: 'Dessecação', icon: '🍂', color: '#84D2F6' },
   { id: 'fogo', name: 'Fogo', icon: '🔥', color: '#91E5F6' },
-  { id: 'outro', name: 'Outro', icon: '✳️', color: '#BEE9E8' }
+  { id: 'outro', name: 'Outro', icon: '📌', color: '#BEE9E8' }
 ];
 
 // Default cultures

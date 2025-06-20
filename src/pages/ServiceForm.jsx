@@ -6,6 +6,7 @@ import { SERVICE_TYPES } from '../utils/constants';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import { ArrowLeft, Save, Trash2, Camera, X } from 'lucide-react';
+import LocationPicker from '../components/common/LocationPicker';
 
 function ServiceForm() {
   const navigate = useNavigate();
@@ -36,7 +37,8 @@ function ServiceForm() {
     precoHora: existingService?.precoHora || '',
     comissao: existingService?.comissao || '',
     observacoes: existingService?.observacoes || '',
-    fotos: existingService?.fotos || []
+    fotos: existingService?.fotos || [],
+    location: existingService?.location || null
   });
   
   const [errors, setErrors] = useState({});
@@ -543,6 +545,32 @@ function ServiceForm() {
               <div className="cf-bg-gray-50 cf-p-3 rounded-lg">
                 <div className="cf-text-small cf-bold text-gray-700">
                   Volume Total Aplicado: {formatNumber(calculatedMetrics.volumeAplicado)} L
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+        
+        {/* Location Data */}
+        <Card title="📍 Localização do Serviço">
+          <div className="space-y-3">
+            <div className="text-sm text-gray-600 mb-3">
+              <p>Capture a localização onde o serviço foi realizado para referência futura e visualização no mapa.</p>
+            </div>
+            
+            <LocationPicker
+              value={formData.location}
+              onChange={(location) => handleInputChange('location', location)}
+              disabled={isSubmitting}
+            />
+            
+            {formData.location && (
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <span className="text-blue-600">💡</span>
+                  <div className="text-blue-800">
+                    <strong>Localização salva!</strong> Este serviço aparecerá no mapa de serviços e poderá ser usado para análises geográficas futuras.
+                  </div>
                 </div>
               </div>
             )}

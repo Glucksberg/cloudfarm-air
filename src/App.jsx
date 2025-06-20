@@ -5,6 +5,7 @@ import Layout from './components/common/Layout';
 import Dashboard from './pages/Dashboard';
 import ServicesList from './pages/ServicesList';
 import ServiceForm from './pages/ServiceForm';
+import ServicesMapPage from './pages/ServicesMapPage';
 import ClientsList from './pages/ClientsList';
 import ClientForm from './pages/ClientForm';
 import EmployeesList from './pages/EmployeesList';
@@ -25,20 +26,21 @@ function App() {
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/servicos" element={<ServicesList />} />
-            <Route path="/servico/novo" element={<ServiceForm />} />
-            <Route path="/servico/:id" element={<ServiceForm />} />
+            <Route path="/servicos/novo" element={<ServiceForm />} />
+            <Route path="/servicos/editar/:id" element={<ServiceForm />} />
+            <Route path="/servicos/mapa" element={<ServicesMapPage />} />
             <Route path="/clientes" element={<ClientsList />} />
-            <Route path="/cliente/novo" element={<ClientForm />} />
-            <Route path="/cliente/:id" element={<ClientForm />} />
+            <Route path="/clientes/novo" element={<ClientForm />} />
+            <Route path="/clientes/editar/:id" element={<ClientForm />} />
             <Route path="/funcionarios" element={<EmployeesList />} />
-            <Route path="/funcionario/novo" element={<EmployeeForm />} />
-            <Route path="/funcionario/:id" element={<EmployeeForm />} />
+            <Route path="/funcionarios/novo" element={<EmployeeForm />} />
+            <Route path="/funcionarios/editar/:id" element={<EmployeeForm />} />
             <Route path="/aeronaves" element={<AircraftsList />} />
-            <Route path="/aeronave/nova" element={<AircraftForm />} />
-            <Route path="/aeronave/:id" element={<AircraftForm />} />
+            <Route path="/aeronaves/novo" element={<AircraftForm />} />
+            <Route path="/aeronaves/editar/:id" element={<AircraftForm />} />
             <Route path="/culturas" element={<CulturesList />} />
-            <Route path="/cultura/nova" element={<CultureForm />} />
-            <Route path="/cultura/:id" element={<CultureForm />} />
+            <Route path="/culturas/novo" element={<CultureForm />} />
+            <Route path="/culturas/editar/:id" element={<CultureForm />} />
             <Route path="/relatorios" element={<Reports />} />
             <Route path="/configuracoes" element={<Settings />} />
           </Routes>

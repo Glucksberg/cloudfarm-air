@@ -34,14 +34,14 @@ const initialState = {
   
   // Service types with icons
   serviceTypes: [
-    { id: 'fungicida', name: 'Fungicida', icon: '🐾' },
+    { id: 'fungicida', name: 'Fungicida', icon: '🍄' },
     { id: 'inseticida', name: 'Inseticida', icon: '🐛' },
     { id: 'fertilizante', name: 'Fertilizante', icon: '🌾' },
-    { id: 'adubacao', name: 'Adubação', icon: '🌱' },
+    { id: 'biologico', name: 'Biológico', icon: '🦠' },
     { id: 'semeadura', name: 'Semeadura', icon: '🌱' },
-    { id: 'dessecacao', name: 'Dessecação', icon: '🌵' },
+    { id: 'dessecacao', name: 'Dessecação', icon: '🍂' },
     { id: 'fogo', name: 'Fogo', icon: '🔥' },
-    { id: 'outro', name: 'Outro', icon: '✳️' }
+    { id: 'outro', name: 'Outro', icon: '📌' }
   ]
 };
 

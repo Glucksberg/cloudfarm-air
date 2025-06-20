@@ -7,7 +7,8 @@ import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import FloatingActionButton from '../components/common/FloatingActionButton';
 import AirplaneIcon from '../components/common/AirplaneIcon';
-import { Search, Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane } from 'lucide-react';
+import LocationDisplay from '../components/common/LocationDisplay';
+import { Search, Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane, MapPin } from 'lucide-react';
 
 function ServicesList() {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ function ServicesList() {
   });
   
   const handleEdit = (serviceId) => {
-    navigate(`/servico/editar/${serviceId}`);
+    navigate(`/servicos/editar/${serviceId}`);
   };
   
   const handleDelete = (serviceId) => {
@@ -100,12 +101,19 @@ function ServicesList() {
   };
   
   const handleNewService = () => {
-    navigate('/servico/novo');
+    navigate('/servicos/novo');
   };
   
+  // Get service type icon
   const getServiceTypeIcon = (type) => {
     const serviceType = SERVICE_TYPES.find(st => st.name === type);
-    return serviceType ? serviceType.icon : <AirplaneIcon size={20} className="text-blue-600" />;
+    return serviceType?.icon || <AirplaneIcon size={16} />;
+  };
+  
+  // Get service type color
+  const getServiceTypeColor = (type) => {
+    const serviceType = SERVICE_TYPES.find(st => st.name === type);
+    return serviceType?.color || '#6B7280';
   };
   
   const renderServiceTypeIcon = (type) => {
@@ -166,17 +174,30 @@ function ServicesList() {
   return (
     <div className="cf-flex cf-flex-col cf-gap-4">
       {/* Header */}
-      <div className="cf-flex cf-items-center cf-justify-between">
+      <div className="cf-flex cf-items-center cf-justify-between cf-gap-4">
         <div>
           <h1 className="cf-text-xl cf-bold">Lista de Serviços</h1>
           <p className="cf-text-small text-gray-600">
-            {sortedServices.length} de {services.length} serviços
+            {filteredServices.length} de {services.length} serviços
           </p>
         </div>
-        <Button onClick={handleNewService}>
-          <Plus size={20} className="mr-2" />
-          Novo
-        </Button>
+        
+        <div className="cf-flex cf-gap-2">
+          <Button
+            onClick={() => navigate('/servicos/mapa')}
+            variant="secondary"
+            size="sm"
+            disabled={services.filter(s => s.location).length === 0}
+          >
+            <MapPin size={16} className="mr-1" />
+            Ver Mapa
+          </Button>
+          
+          <Button onClick={handleNewService}>
+            <Plus size={20} className="mr-2" />
+            Novo
+          </Button>
+        </div>
       </div>
       
       {/* Filters */}
@@ -281,116 +302,196 @@ function ServicesList() {
           const metrics = calculateServiceMetrics(service);
           
           return (
-            <Card key={service.id}>
-              <div className="space-y-4">
-                {/* Header */}
-                <div className="cf-flex cf-items-start cf-justify-between">
-                  <div className="cf-flex cf-items-center cf-gap-3">
-                    <div className="cf-text-large">
-                      {renderServiceTypeIcon(service.tipoServico)}
-                    </div>
-                    <div>
-                      <div className="cf-text-medium cf-bold">
-                        {service.tipoServico}
+            <Card key={service.id} className="overflow-hidden hover:shadow-md transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50/50">
+              <div className="relative">
+                {/* Barra colorida lateral */}
+                <div 
+                  className="absolute left-0 top-0 w-1 h-full"
+                  style={{ backgroundColor: getServiceTypeColor(service.tipoServico) }}
+                />
+                
+                <div className="pl-6 pr-4 py-4">
+                  {/* Header compacto */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center gap-3">
+                      {/* Ícone menor */}
+                      <div 
+                        className="w-12 h-12 rounded-xl flex items-center justify-center shadow-sm"
+                        style={{ 
+                          background: `linear-gradient(135deg, ${getServiceTypeColor(service.tipoServico)}, ${getServiceTypeColor(service.tipoServico)}dd)` 
+                        }}
+                      >
+                        <span className="text-lg text-white drop-shadow-sm">
+                          {getServiceTypeIcon(service.tipoServico)}
+                        </span>
                       </div>
-                      <div className="cf-text-small text-gray-600">
-                        {formatDate(service.data)}
+                      
+                      {/* Info principal */}
+                      <div>
+                        <h3 className="text-lg font-bold text-gray-800">{service.tipoServico}</h3>
+                        <div className="flex items-center gap-3 text-sm text-gray-600">
+                          <div className="flex items-center gap-1">
+                            <Calendar size={14} />
+                            <span>{formatDate(service.data)}</span>
+                          </div>
+                          <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs font-medium rounded-md">
+                            #{service.id.slice(0, 6)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Botões compactos */}
+                    <div className="flex gap-1">
+                      <button
+                        onClick={() => navigate(`/servicos/editar/${service.id}`)}
+                        className="w-8 h-8 flex items-center justify-center bg-blue-50 hover:bg-blue-100 text-blue-600 rounded-lg transition-colors"
+                        aria-label="Editar serviço"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(service.id)}
+                        className="w-8 h-8 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 rounded-lg transition-colors"
+                        aria-label="Excluir serviço"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  
+                  {/* Grid de informações compacto */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                    {/* Métricas principais */}
+                    <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                      <div className="flex items-center gap-2">
+                        <span className="text-blue-600 text-sm">📏</span>
+                        <div>
+                          <div className="text-xs text-blue-600 font-medium">Área</div>
+                          <div className="text-lg font-bold text-blue-800">{formatNumber(service.area)} ha</div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-green-50 rounded-lg p-3 border border-green-100">
+                      <div className="flex items-center gap-2">
+                        <Clock size={14} className="text-green-600" />
+                        <div>
+                          <div className="text-xs text-green-600 font-medium">Horas</div>
+                          <div className="text-lg font-bold text-green-800">
+                            {formatNumber(service.horimetroFinal - service.horimetroInicio)}h
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
+                      <div className="flex items-center gap-2">
+                        <DollarSign size={14} className="text-emerald-600" />
+                        <div>
+                          <div className="text-xs text-emerald-600 font-medium">Receita</div>
+                          <div className="text-lg font-bold text-emerald-800">
+                            {formatCurrency(service.precoHora * (service.horimetroFinal - service.horimetroInicio))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="bg-cyan-50 rounded-lg p-3 border border-cyan-100">
+                      <div className="flex items-center gap-2">
+                        <span className="text-cyan-600 text-sm">💧</span>
+                        <div>
+                          <div className="text-xs text-cyan-600 font-medium">Volume</div>
+                          <div className="text-lg font-bold text-cyan-800">
+                            {formatNumber(service.area * service.vazao)}L
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="cf-flex cf-gap-2">
-                    <button
-                      onClick={() => handleEdit(service.id)}
-                      className="cf-touch-target hover:bg-blue-100 rounded-lg transition-colors"
-                      aria-label="Editar serviço"
-                    >
-                      <Edit size={20} className="text-blue-600" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(service.id)}
-                      className="cf-touch-target hover:bg-red-100 rounded-lg transition-colors"
-                      aria-label="Excluir serviço"
-                    >
-                      <Trash2 size={20} className="text-red-600" />
-                    </button>
+                  {/* Informações de pessoas e equipamentos - layout horizontal */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-blue-100 rounded-md flex items-center justify-center">
+                        <User size={12} className="text-blue-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-gray-500 uppercase tracking-wide font-medium">Cliente</div>
+                        <div className="font-semibold text-gray-800 truncate">{client?.nome || 'N/A'}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-green-100 rounded-md flex items-center justify-center">
+                        <User size={12} className="text-green-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-gray-500 uppercase tracking-wide font-medium">Piloto</div>
+                        <div className="font-semibold text-gray-800 truncate">{employee?.nomeCompleto || 'N/A'}</div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-purple-100 rounded-md flex items-center justify-center">
+                        <AirplaneIcon size={12} color="#7C3AED" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-gray-500 uppercase tracking-wide font-medium">Aeronave</div>
+                        <div className="font-semibold text-gray-800 truncate">
+                          {aircraft ? `${aircraft.modelo} (${aircraft.prefixo})` : 'N/A'}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex items-center gap-2">
+                      <div className="w-6 h-6 bg-amber-100 rounded-md flex items-center justify-center">
+                        <span className="text-amber-600 text-xs">🌾</span>
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="text-gray-500 uppercase tracking-wide font-medium">Cultura</div>
+                        <div className="font-semibold text-gray-800 truncate">{culture?.nome || 'N/A'}</div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-4 cf-text-small">
-                  {/* Client */}
-                  <div className="cf-flex cf-items-center cf-gap-2">
-                    <User size={16} className="text-gray-400" />
-                    <div>
-                      <div className="cf-bold">{client?.nome || 'Cliente não encontrado'}</div>
-                      {client?.empresa && (
-                        <div className="text-gray-600">{client.empresa}</div>
+
+                  {/* Informações extras - apenas se existirem */}
+                  {(service.location || (service.fotos && service.fotos.length > 0) || service.observacoes) && (
+                    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
+                      {/* Localização */}
+                      {service.location && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="w-5 h-5 bg-indigo-100 rounded flex items-center justify-center">
+                            <MapPin size={10} className="text-indigo-600" />
+                          </div>
+                          <span className="text-indigo-700 font-medium">Localização</span>
+                        </div>
+                      )}
+                      
+                      {/* Fotos */}
+                      {service.fotos && service.fotos.length > 0 && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="w-5 h-5 bg-purple-100 rounded flex items-center justify-center">
+                            <span className="text-purple-600 text-xs">📷</span>
+                          </div>
+                          <span className="text-purple-700 font-medium">
+                            {service.fotos.length} foto{service.fotos.length !== 1 ? 's' : ''}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Observações */}
+                      {service.observacoes && (
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="w-5 h-5 bg-amber-100 rounded flex items-center justify-center">
+                            <span className="text-amber-600 text-xs">📝</span>
+                          </div>
+                          <span className="text-amber-700 font-medium">Observações</span>
+                        </div>
                       )}
                     </div>
-                  </div>
-                  
-                  {/* Aircraft */}
-                  <div className="cf-flex cf-items-center cf-gap-2">
-                    <AirplaneIcon size={16} className="text-gray-400" />
-                    <div>
-                      <div className="cf-bold">{aircraft?.prefixo || 'N/A'}</div>
-                      <div className="text-gray-600">{aircraft?.modelo || 'Aeronave não encontrada'}</div>
-                    </div>
-                  </div>
-                  
-                  {/* Employee */}
-                  <div className="cf-flex cf-items-center cf-gap-2">
-                    <User size={16} className="text-gray-400" />
-                    <div>
-                      <div className="cf-bold">Piloto</div>
-                      <div className="text-gray-600">{employee?.nomeCompleto || 'Funcionário não encontrado'}</div>
-                    </div>
-                  </div>
-                  
-                  {/* Culture */}
-                  <div className="cf-flex cf-items-center cf-gap-2">
-                    <div className="text-gray-400">🌾</div>
-                    <div>
-                      <div className="cf-bold">Cultura</div>
-                      <div className="text-gray-600">{culture?.nome || 'Cultura não encontrada'}</div>
-                    </div>
-                  </div>
+                  )}
                 </div>
-                
-                {/* Metrics */}
-                <div className="grid grid-cols-3 gap-4 cf-bg-gray-50 cf-p-3 rounded-lg">
-                  <div className="text-center">
-                    <div className="cf-text-small text-gray-600">Área</div>
-                    <div className="cf-text-medium cf-bold">{formatNumber(service.area)} ha</div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="cf-text-small text-gray-600">Horas Voo</div>
-                    <div className="cf-text-medium cf-bold">{formatNumber(metrics.horasVoo)} h</div>
-                  </div>
-                  
-                  <div className="text-center">
-                    <div className="cf-text-small text-gray-600">Receita</div>
-                    <div className="cf-text-medium cf-bold text-green-600">{formatCurrency(metrics.receita)}</div>
-                  </div>
-                </div>
-                
-                {/* Additional Info */}
-                {(service.observacoes || service.fotos?.length > 0) && (
-                  <div className="cf-border-t cf-pt-3">
-                    {service.observacoes && (
-                      <div className="cf-text-small text-gray-600 cf-mb-2">
-                        <strong>Obs:</strong> {service.observacoes}
-                      </div>
-                    )}
-                    {service.fotos?.length > 0 && (
-                      <div className="cf-text-small text-gray-600">
-                        📷 {service.fotos.length} foto{service.fotos.length !== 1 ? 's' : ''} anexada{service.fotos.length !== 1 ? 's' : ''}
-                      </div>
-                    )}
-                  </div>
-                )}
               </div>
             </Card>
           );
