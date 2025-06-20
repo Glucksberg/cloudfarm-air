@@ -40,6 +40,26 @@ body {
   color: var(--cf-black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  
+  /* Otimizações para WebView/APK */
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  
+  /* Prevenir zoom em inputs */
+  -webkit-text-size-adjust: 100%;
+  -ms-text-size-adjust: 100%;
+}
+
+/* Permitir seleção de texto em elementos específicos */
+input, textarea, [contenteditable] {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
 }
 
 /* Mobile-first responsive design */
@@ -50,10 +70,24 @@ body {
   padding: 0 16px;
 }
 
+/* Breakpoints otimizados para Android */
+@media (min-width: 360px) {
+  .container {
+    padding: 0 20px;
+  }
+}
+
 @media (min-width: 768px) {
   .container {
     max-width: 768px;
     padding: 0 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    max-width: 1024px;
+    padding: 0 32px;
   }
 }
 
@@ -92,13 +126,20 @@ body {
   font-size: var(--cf-font-size-xl);
 }
 
-/* Mobile touch targets */
+/* Mobile touch targets - Otimizado para Android */
 .cf-touch-target {
-  min-height: 44px;
-  min-width: 44px;
+  min-height: 48px; /* Aumentado para Android guidelines */
+  min-width: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
+}
+
+/* Feedback visual para touch */
+.cf-touch-target:active {
+  transform: scale(0.98);
+  transition: transform 0.1s ease;
 }
 
 /* Card styles */
@@ -110,7 +151,7 @@ body {
   margin-bottom: 16px;
 }
 
-/* Button styles */
+/* Button styles - Otimizado para touch */
 .cf-button {
   background-color: var(--cf-primary);
   color: var(--cf-white);
@@ -122,16 +163,37 @@ body {
   font-size: var(--cf-font-size-medium);
   cursor: pointer;
   transition: all 0.2s ease;
-  min-height: 44px;
+  min-height: 48px;
+  position: relative;
+  overflow: hidden;
 }
 
 .cf-button:hover {
   background-color: #005580;
-  transform: translateY(-1px);
 }
 
 .cf-button:active {
-  transform: translateY(0);
+  background-color: #004466;
+  transform: scale(0.98);
+}
+
+/* Ripple effect para botões */
+.cf-button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+}
+
+.cf-button:active::before {
+  width: 300px;
+  height: 300px;
 }
 
 .cf-button-secondary {
@@ -143,16 +205,17 @@ body {
   background-color: #e0e0e0;
 }
 
-/* Form styles */
+/* Form styles - Otimizado para mobile */
 .cf-input {
   width: 100%;
-  padding: 12px 16px;
+  padding: 16px; /* Aumentado para melhor touch */
   border: 1px solid #ddd;
   border-radius: 8px;
   font-family: var(--cf-font-family);
-  font-size: var(--cf-font-size-medium);
+  font-size: 16px; /* Previne zoom no iOS */
   background-color: var(--cf-white);
-  min-height: 44px;
+  min-height: 48px;
+  transition: border-color 0.2s ease;
 }
 
 .cf-input:focus {
@@ -163,19 +226,19 @@ body {
 
 .cf-select {
   width: 100%;
-  padding: 12px 16px;
+  padding: 16px;
   border: 1px solid #ddd;
   border-radius: 8px;
   font-family: var(--cf-font-family);
-  font-size: var(--cf-font-size-medium);
+  font-size: 16px; /* Previne zoom no iOS */
   background-color: var(--cf-white);
-  min-height: 44px;
+  min-height: 48px;
   appearance: none;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-  background-position: right 12px center;
+  background-position: right 16px center;
   background-repeat: no-repeat;
   background-size: 16px;
-  padding-right: 40px;
+  padding-right: 48px;
 }
 
 /* Layout helpers */
@@ -258,8 +321,8 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-/* Mobile optimizations */
-@media (max-width: 768px) {
+/* Mobile optimizations - Múltiplos breakpoints */
+@media (max-width: 480px) {
   .cf-mobile-hidden {
     display: none;
   }
@@ -270,6 +333,68 @@ body {
   
   .cf-mobile-text-center {
     text-align: center;
+  }
+  
+  /* Ajustes para telas muito pequenas */
+  .cf-text-xl {
+    font-size: 20px;
+  }
+  
+  .cf-p-4 {
+    padding: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .cf-tablet-hidden {
+    display: none;
+  }
+  
+  /* Otimizações para tablets */
+  .cf-button {
+    padding: 14px 28px;
+  }
+}
+
+/* Otimizações específicas para Android WebView */
+@media screen and (max-width: 768px) {
+  /* Melhor performance em scroll */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Prevenir seleção acidental */
+  img {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-user-drag: none;
+    -webkit-touch-callout: none;
+  }
+  
+  /* Melhor renderização de texto */
+  body {
+    text-rendering: optimizeLegibility;
+  }
+}
+
+/* Safe area para dispositivos com notch */
+@supports (padding: max(0px)) {
+  .cf-safe-area-top {
+    padding-top: max(16px, env(safe-area-inset-top));
+  }
+  
+  .cf-safe-area-bottom {
+    padding-bottom: max(16px, env(safe-area-inset-bottom));
+  }
+  
+  .cf-safe-area-left {
+    padding-left: max(16px, env(safe-area-inset-left));
+  }
+  
+  .cf-safe-area-right {
+    padding-right: max(16px, env(safe-area-inset-right));
   }
 }
 

@@ -151,10 +151,6 @@ function ServicesList() {
             <h1 className="cf-text-xl cf-bold">Lista de Serviços</h1>
             <p className="cf-text-small text-gray-600">0 serviços cadastrados</p>
           </div>
-          <Button onClick={handleNewService}>
-            <Plus size={20} className="mr-2" />
-            Novo
-          </Button>
         </div>
         
         <Card>

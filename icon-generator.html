@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudFarm Air - Gerador de Ícones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #006494;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .icon-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .icon-item {
+            text-align: center;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+        }
+        .icon-item img {
+            display: block;
+            margin: 0 auto 10px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background: #006494;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px;
+        }
+        button:hover {
+            background: #005580;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>CloudFarm Air - Gerador de Ícones</h1>
+        
+        <div class="status info">
+            <strong>Instruções:</strong><br>
+            1. Clique em "Gerar Ícones" para criar todos os tamanhos<br>
+            2. Clique em "Baixar Todos" para fazer download dos ícones<br>
+            3. Coloque os arquivos na pasta <code>public/icons/</code>
+        </div>
+
+        <div style="text-align: center;">
+            <button onclick="generateIcons()">🎨 Gerar Ícones</button>
+            <button onclick="downloadAll()" id="downloadBtn" style="display: none;">📥 Baixar Todos</button>
+        </div>
+
+        <div id="status"></div>
+        <div id="iconPreview" class="icon-preview"></div>
+    </div>
+
+    <script>
+        const iconSvg = `<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="256" cy="256" r="240" fill="#006494" stroke="#004466" stroke-width="8"/>
+            <circle cx="180" cy="200" r="40" fill="#ffffff" opacity="0.9"/>
+            <circle cx="220" cy="180" r="50" fill="#ffffff" opacity="0.9"/>
+            <circle cx="280" cy="190" r="45" fill="#ffffff" opacity="0.9"/>
+            <circle cx="320" cy="210" r="35" fill="#ffffff" opacity="0.9"/>
+            <ellipse cx="256" cy="280" rx="80" ry="12" fill="#ffffff"/>
+            <ellipse cx="256" cy="280" rx="120" ry="8" fill="#ffffff" opacity="0.8"/>
+            <circle cx="256" cy="280" r="6" fill="#ffffff"/>
+            <line x1="246" y1="280" x2="266" y2="280" stroke="#006494" stroke-width="2"/>
+            <line x1="256" y1="270" x2="256" y2="290" stroke="#006494" stroke-width="2"/>
+            <g opacity="0.3">
+                <rect x="100" y="350" width="80" height="8" fill="#4CAF50"/>
+                <rect x="200" y="360" width="100" height="8" fill="#8BC34A"/>
+                <rect x="320" y="350" width="90" height="8" fill="#4CAF50"/>
+                <rect x="120" y="370" width="70" height="8" fill="#8BC34A"/>
+                <rect x="220" y="380" width="80" height="8" fill="#4CAF50"/>
+                <rect x="320" y="370" width="70" height="8" fill="#8BC34A"/>
+            </g>
+            <text x="256" y="420" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="#ffffff">CloudFarm</text>
+            <text x="256" y="450" text-anchor="middle" font-family="Arial, sans-serif" font-size="18" fill="#ffffff" opacity="0.9">AIR</text>
+        </svg>`;
+
+        const sizes = [72, 96, 128, 144, 152, 192, 384, 512];
+        const specialIcons = [
+            { name: 'favicon-16x16', size: 16 },
+            { name: 'favicon-32x32', size: 32 },
+            { name: 'apple-touch-icon', size: 180 }
+        ];
+        
+        let generatedIcons = [];
+
+        function generateIcons() {
+            const statusDiv = document.getElementById('status');
+            const previewDiv = document.getElementById('iconPreview');
+            
+            statusDiv.innerHTML = '<div class="status info">🎨 Gerando ícones...</div>';
+            previewDiv.innerHTML = '';
+            generatedIcons = [];
+
+            let completed = 0;
+            const totalIcons = sizes.length + specialIcons.length;
+
+            // Gerar ícones principais
+            sizes.forEach(size => {
+                generateIcon(size, `icon-${size}x${size}`, () => {
+                    completed++;
+                    if (completed === totalIcons) {
+                        statusDiv.innerHTML = '<div class="status success">✅ Todos os ícones gerados com sucesso!</div>';
+                        document.getElementById('downloadBtn').style.display = 'inline-block';
+                    }
+                });
+            });
+
+            // Gerar ícones especiais
+            specialIcons.forEach(icon => {
+                generateIcon(icon.size, icon.name, () => {
+                    completed++;
+                    if (completed === totalIcons) {
+                        statusDiv.innerHTML = '<div class="status success">✅ Todos os ícones gerados com sucesso!</div>';
+                        document.getElementById('downloadBtn').style.display = 'inline-block';
+                    }
+                });
+            });
+        }
+
+        function generateIcon(size, name, callback) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = size;
+            canvas.height = size;
+
+            const img = new Image();
+            const svgBlob = new Blob([iconSvg], { type: 'image/svg+xml' });
+            const url = URL.createObjectURL(svgBlob);
+
+            img.onload = function() {
+                ctx.drawImage(img, 0, 0, size, size);
+                const dataURL = canvas.toDataURL('image/png');
+                
+                // Armazenar para download
+                generatedIcons.push({
+                    name: `${name}.png`,
+                    dataURL: dataURL,
+                    size: size
+                });
+
+                // Criar preview
+                const iconItem = document.createElement('div');
+                iconItem.className = 'icon-item';
+                iconItem.innerHTML = `
+                    <img src="${dataURL}" width="${Math.min(size, 64)}" height="${Math.min(size, 64)}" alt="${name}">
+                    <div><strong>${name}.png</strong></div>
+                    <div>${size}x${size}px</div>
+                `;
+                document.getElementById('iconPreview').appendChild(iconItem);
+
+                URL.revokeObjectURL(url);
+                callback();
+            };
+
+            img.src = url;
+        }
+
+        function downloadAll() {
+            generatedIcons.forEach(icon => {
+                const link = document.createElement('a');
+                link.download = icon.name;
+                link.href = icon.dataURL;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+
+            document.getElementById('status').innerHTML = '<div class="status success">📥 Download iniciado! Verifique sua pasta de downloads.</div>';
+        }
+
+        // Gerar ícones automaticamente ao carregar a página
+        window.addEventListener('load', () => {
+            setTimeout(generateIcons, 1000);
+        });
+    </script>
+</body>
+</html> 

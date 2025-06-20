@@ -27,11 +27,11 @@ function ClientsList() {
   const sortedClients = sortItems(filteredClients, sortField, sortDirection);
   
   const handleAddClient = () => {
-    navigate('/cliente/novo');
+    navigate('/clientes/novo');
   };
   
   const handleEditClient = (clientId) => {
-    navigate(`/cliente/${clientId}`);
+    navigate(`/clientes/editar/${clientId}`);
   };
   
   const handleDeleteClient = (client) => {
@@ -59,10 +59,6 @@ function ClientsList() {
             {clients.length} cliente{clients.length !== 1 ? 's' : ''} cadastrado{clients.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button onClick={handleAddClient} size="small">
-          <Plus size={16} className="mr-2" />
-          Novo
-        </Button>
       </div>
       
       {/* Search */}

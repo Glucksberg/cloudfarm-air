@@ -26,11 +26,11 @@ function CulturesList() {
   const sortedCultures = sortItems(filteredCultures, sortField, sortDirection);
   
   const handleAddCulture = () => {
-    navigate('/cultura/nova');
+    navigate('/culturas/novo');
   };
   
   const handleEditCulture = (cultureId) => {
-    navigate(`/cultura/${cultureId}`);
+    navigate(`/culturas/editar/${cultureId}`);
   };
   
   const handleDeleteCulture = (culture) => {
@@ -58,10 +58,6 @@ function CulturesList() {
             {cultures.length} cultura{cultures.length !== 1 ? 's' : ''} cadastrada{cultures.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button onClick={handleAddCulture} size="small">
-          <Plus size={16} className="mr-2" />
-          Nova
-        </Button>
       </div>
       
       {/* Search */}

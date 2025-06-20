@@ -27,11 +27,11 @@ function AircraftsList() {
   const sortedAircrafts = sortItems(filteredAircrafts, sortField, sortDirection);
   
   const handleAddAircraft = () => {
-    navigate('/aeronave/nova');
+    navigate('/aeronaves/novo');
   };
   
   const handleEditAircraft = (aircraftId) => {
-    navigate(`/aeronave/${aircraftId}`);
+    navigate(`/aeronaves/editar/${aircraftId}`);
   };
   
   const handleDeleteAircraft = (aircraft) => {
@@ -59,10 +59,6 @@ function AircraftsList() {
             {aircrafts.length} aeronave{aircrafts.length !== 1 ? 's' : ''} cadastrada{aircrafts.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button onClick={handleAddAircraft} size="small">
-          <Plus size={16} className="mr-2" />
-          Nova
-        </Button>
       </div>
       
       {/* Search */}

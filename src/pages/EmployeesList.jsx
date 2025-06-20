@@ -59,10 +59,6 @@ function EmployeesList() {
             {employees.length} auxiliar{employees.length !== 1 ? 'es' : ''} cadastrado{employees.length !== 1 ? 's' : ''}
           </p>
         </div>
-        <Button onClick={handleAddEmployee} size="small">
-          <Plus size={16} className="mr-2" />
-          Novo
-        </Button>
       </div>
       
       {/* Search */}
