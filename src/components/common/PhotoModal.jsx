@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 
 function PhotoModal({ photos, isOpen, onClose, serviceName }) {
   // Se não está aberto, não renderiza nada
@@ -117,7 +117,6 @@ function PhotoModal({ photos, isOpen, onClose, serviceName }) {
                       cursor: 'zoom-in'
                     }}
                     onError={(e) => {
-                      console.error('Erro ao carregar imagem:', photo);
                       e.target.style.display = 'none';
                     }}
                     onClick={() => {

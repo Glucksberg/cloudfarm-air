@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useServices, useClients, useEmployees, useAircrafts, useCultures } from '../hooks/useEntities';
 import { useFormatters } from '../hooks/useUtils';
@@ -8,7 +8,7 @@ import Button from '../components/common/Button';
 import FloatingActionButton from '../components/common/FloatingActionButton';
 import AirplaneIcon from '../components/common/AirplaneIcon';
 import PhotoModal from '../components/common/PhotoModal';
-import { Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane, MapPin, Eye } from 'lucide-react';
+import { Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, MapPin, Eye } from 'lucide-react';
 
 function ServicesList() {
   const navigate = useNavigate();
@@ -141,25 +141,6 @@ function ServicesList() {
   const getServiceTypeColor = (type) => {
     const serviceType = SERVICE_TYPES.find(st => st.name === type);
     return serviceType?.color || '#6B7280';
-  };
-  
-  const renderServiceTypeIcon = (type) => {
-    const icon = getServiceTypeIcon(type);
-    // Se for um componente React (object), renderiza diretamente
-    // Se for string (emoji), renderiza dentro de uma div
-    return typeof icon === 'string' ? <span className="cf-text-large">{icon}</span> : icon;
-  };
-  
-  const calculateServiceMetrics = (service) => {
-    const horasVoo = service.horimetroFinal - service.horimetroInicio;
-    const receita = horasVoo * service.precoHora;
-    const comissao = receita * (service.comissao / 100);
-    
-    return {
-      horasVoo,
-      receita,
-      comissao
-    };
   };
   
   if (services.length === 0) {
@@ -308,7 +289,6 @@ function ServicesList() {
           const employee = getEmployeeById(service.funcionarioId);
           const aircraft = getAircraftById(service.aeronaveId);
           const culture = getCultureById(service.culturaId);
-          const metrics = calculateServiceMetrics(service);
           
           return (
             <Card key={service.id} className="overflow-hidden hover:shadow-md transition-all duration-300 border-0 bg-gradient-to-r from-white to-gray-50/50">
@@ -465,59 +445,57 @@ function ServicesList() {
                   </div>
 
                   {/* Informações extras - localização e fotos */}
-                  {(service.location || service.observacoes || true) && (
-                    <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
-                      {/* Localização */}
-                      {service.location ? (
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-5 h-5 bg-green-100 rounded flex items-center justify-center">
-                            <MapPin size={10} className="text-green-600" />
-                          </div>
-                          <div className="text-green-700">
-                            <span className="font-medium">Localização</span>
-                            <div className="text-green-600 text-xs">
-                              {service.location.latitude.toFixed(6)}, {service.location.longitude.toFixed(6)}
-                            </div>
+                  <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
+                    {/* Localização */}
+                    {service.location ? (
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-5 h-5 bg-green-100 rounded flex items-center justify-center">
+                          <MapPin size={10} className="text-green-600" />
+                        </div>
+                        <div className="text-green-700">
+                          <span className="font-medium">Localização</span>
+                          <div className="text-green-600 text-xs">
+                            {service.location.latitude.toFixed(6)}, {service.location.longitude.toFixed(6)}
                           </div>
                         </div>
-                      ) : (
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center">
-                            <MapPin size={10} className="text-gray-400" />
-                          </div>
-                          <span className="text-gray-500 font-medium">Localização</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center">
+                          <MapPin size={10} className="text-gray-400" />
                         </div>
-                      )}
-                      
-                      {/* Fotos - sempre mostrar */}
-                      <button
-                        onClick={() => handleOpenPhotoModal(service)}
-                        className="flex items-center gap-2 text-xs hover:bg-purple-100 rounded-md px-2 py-1 transition-all duration-200 cursor-pointer group border border-transparent hover:border-purple-200 hover:shadow-sm"
-                        title="Clique para ver as fotos"
-                      >
-                        <div className="w-5 h-5 bg-purple-100 group-hover:bg-purple-200 rounded flex items-center justify-center transition-colors">
-                          <span className="text-purple-600 text-xs">📷</span>
+                        <span className="text-gray-500 font-medium">Localização</span>
+                      </div>
+                    )}
+                    
+                    {/* Fotos - sempre mostrar */}
+                    <button
+                      onClick={() => handleOpenPhotoModal(service)}
+                      className="flex items-center gap-2 text-xs hover:bg-purple-100 rounded-md px-2 py-1 transition-all duration-200 cursor-pointer group border border-transparent hover:border-purple-200 hover:shadow-sm"
+                      title="Clique para ver as fotos"
+                    >
+                      <div className="w-5 h-5 bg-purple-100 group-hover:bg-purple-200 rounded flex items-center justify-center transition-colors">
+                        <span className="text-purple-600 text-xs">📷</span>
+                      </div>
+                      <span className="text-purple-700 font-medium group-hover:text-purple-800">
+                        {service.fotos && service.fotos.length > 0 
+                          ? `${service.fotos.length} foto${service.fotos.length !== 1 ? 's' : ''}`
+                          : 'Ver fotos'
+                        }
+                      </span>
+                      <Eye size={12} className="text-purple-500 group-hover:text-purple-600 opacity-70 group-hover:opacity-100 transition-all" />
+                    </button>
+                    
+                    {/* Observações */}
+                    {service.observacoes && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <div className="w-5 h-5 bg-amber-100 rounded flex items-center justify-center">
+                          <span className="text-amber-600 text-xs">📝</span>
                         </div>
-                        <span className="text-purple-700 font-medium group-hover:text-purple-800">
-                          {service.fotos && service.fotos.length > 0 
-                            ? `${service.fotos.length} foto${service.fotos.length !== 1 ? 's' : ''}`
-                            : 'Ver fotos'
-                          }
-                        </span>
-                        <Eye size={12} className="text-purple-500 group-hover:text-purple-600 opacity-70 group-hover:opacity-100 transition-all" />
-                      </button>
-                      
-                      {/* Observações */}
-                      {service.observacoes && (
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-5 h-5 bg-amber-100 rounded flex items-center justify-center">
-                            <span className="text-amber-600 text-xs">📝</span>
-                          </div>
-                          <span className="text-amber-700 font-medium">Observações</span>
-                        </div>
-                      )}
-                    </div>
-                  )}
+                        <span className="text-amber-700 font-medium">Observações</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>
