@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useServices, useClients, useEmployees, useAircrafts, useCultures } from '../hooks/useEntities';
-import { useSearch, useFormatters } from '../hooks/useUtils';
+import { useFormatters } from '../hooks/useUtils';
 import { SERVICE_TYPES } from '../utils/constants';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import FloatingActionButton from '../components/common/FloatingActionButton';
 import AirplaneIcon from '../components/common/AirplaneIcon';
-import LocationDisplay from '../components/common/LocationDisplay';
 import PhotoModal from '../components/common/PhotoModal';
-import { Search, Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane, MapPin, Eye } from 'lucide-react';
+import { Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane, MapPin, Eye } from 'lucide-react';
 
 function ServicesList() {
   const navigate = useNavigate();
@@ -209,25 +208,6 @@ function ServicesList() {
             {filteredServices.length} de {services.length} serviços
           </p>
         </div>
-        
-        <div className="cf-flex cf-gap-2">
-          {/* Botão temporariamente desabilitado
-          <Button
-            onClick={() => navigate('/servicos/mapa')}
-            variant="secondary"
-            size="sm"
-            disabled={services.filter(s => s.location).length === 0}
-          >
-            <MapPin size={16} className="mr-1" />
-            Ver Mapa
-          </Button>
-          */}
-          
-          <Button onClick={handleNewService}>
-            <Plus size={20} className="mr-2" />
-            Novo
-          </Button>
-        </div>
       </div>
       
       {/* Filters */}
@@ -235,13 +215,12 @@ function ServicesList() {
         <div className="space-y-4">
           {/* Search */}
           <div className="relative">
-            <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Buscar por cliente, auxiliar, aeronave, cultura..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="cf-input pl-10"
+              className="cf-input"
             />
           </div>
           
