@@ -32,8 +32,8 @@ cloudfarm-air/
 │   │   ├── CultureForm.jsx          # Formulário de culturas
 │   │   ├── CulturesList.jsx         # Lista de culturas
 │   │   ├── Dashboard.jsx            # Dashboard principal
-│   │   ├── EmployeeForm.jsx         # Formulário de funcionários
-│   │   ├── EmployeesList.jsx        # Lista de funcionários
+│   │   ├── EmployeeForm.jsx         # Formulário de auxiliares
+│   │   ├── EmployeesList.jsx        # Lista de auxiliares
 │   │   ├── Reports.jsx              # Página de relatórios
 │   │   ├── ServiceForm.jsx          # Formulário de serviços
 │   │   ├── ServicesList.jsx         # Lista de serviços
@@ -64,10 +64,8 @@ cloudfarm-air/
 - CRUD completo (criar, ler, editar, excluir)
 - Validação de email e formatação de telefone
 
-### ✅ Gestão de Funcionários
-- Cadastro de pilotos e operadores
-- Lista organizada
-- CRUD completo
+### ✅ Gestão de Auxiliares
+- Cadastro de auxiliares e operadores
 
 ### ✅ Gestão de Aeronaves
 - Cadastro com modelo, prefixo e horímetro

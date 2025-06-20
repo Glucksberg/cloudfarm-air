@@ -50,8 +50,8 @@ CloudFarm - Air é um aplicativo web mobile-first desenvolvido para gestão comp
 - Validações automáticas
 - Edição e exclusão
 
-### 3. Gestão de Funcionários
-- Cadastro de pilotos e operadores
+### 3. Gestão de Auxiliares
+- Cadastro de auxiliares e operadores
 - Informações de contato
 - Controle de equipe
 

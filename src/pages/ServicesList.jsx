@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useServices, useClients, useEmployees, useAircrafts, useCultures } from '../hooks/useEntities';
 import { useSearch, useFormatters } from '../hooks/useUtils';
@@ -8,7 +8,8 @@ import Button from '../components/common/Button';
 import FloatingActionButton from '../components/common/FloatingActionButton';
 import AirplaneIcon from '../components/common/AirplaneIcon';
 import LocationDisplay from '../components/common/LocationDisplay';
-import { Search, Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane, MapPin } from 'lucide-react';
+import PhotoModal from '../components/common/PhotoModal';
+import { Search, Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane, MapPin, Eye } from 'lucide-react';
 
 function ServicesList() {
   const navigate = useNavigate();
@@ -24,6 +25,13 @@ function ServicesList() {
   const [filterClient, setFilterClient] = useState('');
   const [sortBy, setSortBy] = useState('data');
   const [sortOrder, setSortOrder] = useState('desc');
+  
+  // Photo modal state
+  const [photoModal, setPhotoModal] = useState({
+    isOpen: false,
+    photos: [],
+    serviceName: ''
+  });
   
   // Search and filter services
   const filteredServices = services.filter(service => {
@@ -102,6 +110,26 @@ function ServicesList() {
   
   const handleNewService = () => {
     navigate('/servicos/novo');
+  };
+  
+  // Open photo modal
+  const handleOpenPhotoModal = (service) => {
+    const newModalState = {
+      isOpen: true,
+      photos: service.fotos || [],
+      serviceName: `${service.tipoServico} - ${formatDate(service.data)}`
+    };
+    
+    setPhotoModal(newModalState);
+  };
+  
+  // Close photo modal
+  const handleClosePhotoModal = () => {
+    setPhotoModal({
+      isOpen: false,
+      photos: [],
+      serviceName: ''
+    });
   };
   
   // Get service type icon
@@ -183,6 +211,7 @@ function ServicesList() {
         </div>
         
         <div className="cf-flex cf-gap-2">
+          {/* Botão temporariamente desabilitado
           <Button
             onClick={() => navigate('/servicos/mapa')}
             variant="secondary"
@@ -192,6 +221,7 @@ function ServicesList() {
             <MapPin size={16} className="mr-1" />
             Ver Mapa
           </Button>
+          */}
           
           <Button onClick={handleNewService}>
             <Plus size={20} className="mr-2" />
@@ -208,7 +238,7 @@ function ServicesList() {
             <Search size={20} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Buscar por cliente, funcionário, aeronave, cultura..."
+              placeholder="Buscar por cliente, auxiliar, aeronave, cultura..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="cf-input pl-10"
@@ -427,7 +457,7 @@ function ServicesList() {
                         <User size={12} className="text-green-600" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="text-gray-500 uppercase tracking-wide font-medium">Piloto</div>
+                        <div className="text-gray-500 uppercase tracking-wide font-medium">Auxiliar</div>
                         <div className="font-semibold text-gray-800 truncate">{employee?.nomeCompleto || 'N/A'}</div>
                       </div>
                     </div>
@@ -455,30 +485,48 @@ function ServicesList() {
                     </div>
                   </div>
 
-                  {/* Informações extras - apenas se existirem */}
-                  {(service.location || (service.fotos && service.fotos.length > 0) || service.observacoes) && (
+                  {/* Informações extras - localização e fotos */}
+                  {(service.location || service.observacoes || true) && (
                     <div className="flex items-center gap-4 mt-3 pt-3 border-t border-gray-100">
                       {/* Localização */}
-                      {service.location && (
+                      {service.location ? (
                         <div className="flex items-center gap-2 text-xs">
-                          <div className="w-5 h-5 bg-indigo-100 rounded flex items-center justify-center">
-                            <MapPin size={10} className="text-indigo-600" />
+                          <div className="w-5 h-5 bg-green-100 rounded flex items-center justify-center">
+                            <MapPin size={10} className="text-green-600" />
                           </div>
-                          <span className="text-indigo-700 font-medium">Localização</span>
+                          <div className="text-green-700">
+                            <span className="font-medium">Localização</span>
+                            <div className="text-green-600 text-xs">
+                              {service.location.latitude.toFixed(6)}, {service.location.longitude.toFixed(6)}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-xs">
+                          <div className="w-5 h-5 bg-gray-100 rounded flex items-center justify-center">
+                            <MapPin size={10} className="text-gray-400" />
+                          </div>
+                          <span className="text-gray-500 font-medium">Localização</span>
                         </div>
                       )}
                       
-                      {/* Fotos */}
-                      {service.fotos && service.fotos.length > 0 && (
-                        <div className="flex items-center gap-2 text-xs">
-                          <div className="w-5 h-5 bg-purple-100 rounded flex items-center justify-center">
-                            <span className="text-purple-600 text-xs">📷</span>
-                          </div>
-                          <span className="text-purple-700 font-medium">
-                            {service.fotos.length} foto{service.fotos.length !== 1 ? 's' : ''}
-                          </span>
+                      {/* Fotos - sempre mostrar */}
+                      <button
+                        onClick={() => handleOpenPhotoModal(service)}
+                        className="flex items-center gap-2 text-xs hover:bg-purple-100 rounded-md px-2 py-1 transition-all duration-200 cursor-pointer group border border-transparent hover:border-purple-200 hover:shadow-sm"
+                        title="Clique para ver as fotos"
+                      >
+                        <div className="w-5 h-5 bg-purple-100 group-hover:bg-purple-200 rounded flex items-center justify-center transition-colors">
+                          <span className="text-purple-600 text-xs">📷</span>
                         </div>
-                      )}
+                        <span className="text-purple-700 font-medium group-hover:text-purple-800">
+                          {service.fotos && service.fotos.length > 0 
+                            ? `${service.fotos.length} foto${service.fotos.length !== 1 ? 's' : ''}`
+                            : 'Ver fotos'
+                          }
+                        </span>
+                        <Eye size={12} className="text-purple-500 group-hover:text-purple-600 opacity-70 group-hover:opacity-100 transition-all" />
+                      </button>
                       
                       {/* Observações */}
                       {service.observacoes && (
@@ -497,6 +545,14 @@ function ServicesList() {
           );
         })}
       </div>
+      
+      {/* Photo Modal */}
+      <PhotoModal
+        photos={photoModal.photos}
+        isOpen={photoModal.isOpen}
+        onClose={handleClosePhotoModal}
+        serviceName={photoModal.serviceName}
+      />
       
       <FloatingActionButton
         onClick={handleNewService}

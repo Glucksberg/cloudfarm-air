@@ -97,7 +97,7 @@ function EmployeeForm() {
         addEmployee(employeeData);
       }
       
-      navigate('/funcionarios');
+      navigate('/auxiliares');
     } catch (error) {
       console.error('Error saving employee:', error);
     } finally {
@@ -106,14 +106,14 @@ function EmployeeForm() {
   };
   
   const handleDelete = () => {
-    if (window.confirm('Tem certeza que deseja excluir este funcionário?')) {
+    if (window.confirm('Tem certeza que deseja excluir este auxiliar?')) {
       deleteEmployee(id);
-      navigate('/funcionarios');
+      navigate('/auxiliares');
     }
   };
   
   const handleBack = () => {
-    navigate('/funcionarios');
+    navigate('/auxiliares');
   };
   
   return (
@@ -129,7 +129,7 @@ function EmployeeForm() {
         </button>
         <div>
           <h1 className="cf-text-xl cf-bold">
-            {isEditing ? 'Editar Funcionário' : 'Novo Funcionário'}
+            {isEditing ? 'Editar Auxiliar' : 'Novo Auxiliar'}
           </h1>
           {isEditing && (
             <p className="cf-text-small text-gray-600">
@@ -152,7 +152,7 @@ function EmployeeForm() {
               value={formData.nomeCompleto}
               onChange={(e) => handleInputChange('nomeCompleto', e.target.value)}
               className={`cf-input ${errors.nomeCompleto ? 'border-red-500' : ''}`}
-              placeholder="Nome completo do funcionário"
+              placeholder="Nome completo do auxiliar"
               required
             />
             {errors.nomeCompleto && (
@@ -186,7 +186,7 @@ function EmployeeForm() {
               className="flex-1"
             >
               <Save size={20} className="mr-2" />
-              {isSubmitting ? 'Salvando...' : (isEditing ? 'Salvar Alterações' : 'Salvar Funcionário')}
+              {isSubmitting ? 'Salvando...' : (isEditing ? 'Salvar Alterações' : 'Salvar Auxiliar')}
             </Button>
             
             {isEditing && (

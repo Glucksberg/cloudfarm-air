@@ -96,9 +96,9 @@ function ServiceForm() {
     
     files.forEach(file => {
       if (file.type.startsWith('image/')) {
-        // Limit file size to 2MB
-        if (file.size > 2 * 1024 * 1024) {
-          alert(`A imagem ${file.name} é muito grande (máximo 2MB). Por favor, escolha uma imagem menor.`);
+        // Limit file size to 5MB (aumentado para permitir fotos de melhor qualidade)
+        if (file.size > 5 * 1024 * 1024) {
+          alert(`A imagem ${file.name} é muito grande (máximo 5MB). Por favor, escolha uma imagem menor.`);
           return;
         }
         
@@ -111,10 +111,10 @@ function ServiceForm() {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             
-            // Calculate compressed dimensions (max 800x600)
+            // Calculate compressed dimensions (max 1920x1080 para manter qualidade)
             let { width, height } = img;
-            const maxWidth = 800;
-            const maxHeight = 600;
+            const maxWidth = 1920;
+            const maxHeight = 1080;
             
             if (width > height) {
               if (width > maxWidth) {
@@ -134,8 +134,8 @@ function ServiceForm() {
             // Draw compressed image
             ctx.drawImage(img, 0, 0, width, height);
             
-            // Convert to compressed dataUrl (60% quality)
-            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+            // Convert to compressed dataUrl (85% quality para manter boa qualidade)
+            const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
             
             // Generate secure ID using crypto if available
             const photoId = crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
@@ -183,7 +183,7 @@ function ServiceForm() {
     const aeronaveError = validateRequired(formData.aeronaveId, 'Aeronave');
     if (aeronaveError) newErrors.aeronaveId = aeronaveError;
     
-    const funcionarioError = validateRequired(formData.funcionarioId, 'Funcionário');
+    const funcionarioError = validateRequired(formData.funcionarioId, 'Auxiliar');
     if (funcionarioError) newErrors.funcionarioId = funcionarioError;
     
     const culturaError = validateRequired(formData.culturaId, 'Cultura');
@@ -300,7 +300,7 @@ function ServiceForm() {
                 <div className="cf-text-small text-red-600">• 1 cliente cadastrado</div>
               )}
               {employees.length === 0 && (
-                <div className="cf-text-small text-red-600">• 1 funcionário cadastrado</div>
+                <div className="cf-text-small text-red-600">• 1 auxiliar cadastrado</div>
               )}
               {aircrafts.length === 0 && (
                 <div className="cf-text-small text-red-600">• 1 aeronave cadastrada</div>
@@ -318,9 +318,9 @@ function ServiceForm() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => navigate('/funcionarios')}
+                onClick={() => navigate('/auxiliares')}
               >
-                Cadastrar Funcionários
+                Cadastrar Auxiliares
               </Button>
             </div>
           </div>
@@ -424,10 +424,10 @@ function ServiceForm() {
               )}
             </div>
             
-            {/* Funcionário */}
+            {/* Auxiliar */}
             <div>
               <label className="block cf-text-small cf-bold cf-mb-2">
-                Funcionário *
+                Auxiliar *
               </label>
               <select
                 value={formData.funcionarioId}
@@ -435,7 +435,7 @@ function ServiceForm() {
                 className={`cf-input ${errors.funcionarioId ? 'border-red-500' : ''}`}
                 required
               >
-                <option value="">Selecione o funcionário</option>
+                <option value="">Selecione o auxiliar</option>
                 {employees.map((employee) => (
                   <option key={employee.id} value={employee.id}>
                     {employee.nomeCompleto}

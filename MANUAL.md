@@ -22,7 +22,7 @@ O sistema utiliza um menu lateral que pode ser acessado através do ícone de me
 
 **Cadastros**
 - Clientes
-- Funcionários
+- Auxiliares
 - Aeronaves
 - Culturas
 
@@ -54,8 +54,8 @@ Antes de registrar serviços, é recomendado cadastrar:
   - Telefone (opcional, formatação automática)
 - Clique em "Salvar"
 
-**2. Funcionários**
-- Acesse **Cadastros > Funcionários**
+**2. Auxiliares**
+- Acesse **Cadastros > Auxiliares**
 - Clique em "Novo"
 - Preencha:
   - Nome Completo (obrigatório)
@@ -93,7 +93,7 @@ Antes de registrar serviços, é recomendado cadastrar:
 
 **Responsáveis**
 - Cliente (obrigatório): Selecione da lista cadastrada
-- Funcionário (obrigatório): Piloto responsável
+- Auxiliar (obrigatório): Auxiliar responsável
 - Aeronave (obrigatório): Aeronave utilizada
 - Cultura (obrigatório): Cultura aplicada
 
@@ -236,7 +236,7 @@ Todas as listas possuem:
 
 #### Boas Práticas
 
-1. **Cadastre dados básicos primeiro**: Clientes, funcionários, aeronaves e culturas antes dos serviços
+1. **Cadastre dados básicos primeiro**: Clientes, auxiliares, aeronaves e culturas antes dos serviços
 2. **Mantenha dados atualizados**: Revise e atualize informações regularmente
 3. **Use observações**: Adicione detalhes importantes nos serviços
 4. **Monitore métricas**: Acompanhe performance através do dashboard
@@ -248,7 +248,7 @@ Todas as listas possuem:
 
 **Não consigo salvar um serviço**
 - Verifique se todos os campos obrigatórios estão preenchidos
-- Certifique-se de que há clientes, funcionários, aeronaves e culturas cadastrados
+- Certifique-se de que há clientes, auxiliares, aeronaves e culturas cadastrados
 - Verifique se o horímetro final é maior que o inicial
 
 **Dados não aparecem no dashboard**

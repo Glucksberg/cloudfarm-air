@@ -27,15 +27,15 @@ function EmployeesList() {
   const sortedEmployees = sortItems(filteredEmployees, sortField, sortDirection);
   
   const handleAddEmployee = () => {
-    navigate('/funcionario/novo');
+    navigate('/auxiliares/novo');
   };
   
   const handleEditEmployee = (employeeId) => {
-    navigate(`/funcionario/${employeeId}`);
+    navigate(`/auxiliares/editar/${employeeId}`);
   };
   
   const handleDeleteEmployee = (employee) => {
-    if (window.confirm(`Tem certeza que deseja excluir o funcionário "${employee.nomeCompleto}"?`)) {
+    if (window.confirm(`Tem certeza que deseja excluir o auxiliar "${employee.nomeCompleto}"?`)) {
       deleteEmployee(employee.id);
     }
   };
@@ -54,9 +54,9 @@ function EmployeesList() {
       {/* Header */}
       <div className="cf-flex cf-items-center cf-justify-between">
         <div>
-          <h1 className="cf-text-xl cf-bold">Funcionários</h1>
+          <h1 className="cf-text-xl cf-bold">Auxiliares</h1>
           <p className="cf-text-small text-gray-600">
-            {employees.length} funcionário{employees.length !== 1 ? 's' : ''} cadastrado{employees.length !== 1 ? 's' : ''}
+            {employees.length} auxiliar{employees.length !== 1 ? 'es' : ''} cadastrado{employees.length !== 1 ? 's' : ''}
           </p>
         </div>
         <Button onClick={handleAddEmployee} size="small">
@@ -135,14 +135,14 @@ function EmployeesList() {
                   <button
                     onClick={() => handleEditEmployee(employee.id)}
                     className="cf-touch-target hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
-                    aria-label="Editar funcionário"
+                    aria-label="Editar auxiliar"
                   >
                     <Edit size={18} />
                   </button>
                   <button
                     onClick={() => handleDeleteEmployee(employee)}
                     className="cf-touch-target hover:bg-red-50 text-red-600 rounded-lg transition-colors"
-                    aria-label="Excluir funcionário"
+                    aria-label="Excluir auxiliar"
                   >
                     <Trash2 size={18} />
                   </button>
@@ -157,7 +157,7 @@ function EmployeesList() {
             {searchTerm ? (
               <>
                 <div className="cf-text-large cf-bold cf-mb-2">
-                  Nenhum funcionário encontrado
+                  Nenhum auxiliar encontrado
                 </div>
                 <div className="cf-text-small text-gray-600 cf-mb-4">
                   Tente ajustar os termos de busca
@@ -172,14 +172,14 @@ function EmployeesList() {
             ) : (
               <>
                 <div className="cf-text-large cf-bold cf-mb-2">
-                  Nenhum funcionário cadastrado
+                  Nenhum auxiliar cadastrado
                 </div>
-                <div className="cf-text-small text-gray-600 cf-mb-4">
-                  Comece cadastrando seu primeiro funcionário
+                <div className="cf-text-small text-gray-600 cf-mb-6">
+                  Comece cadastrando seu primeiro auxiliar
                 </div>
                 <Button onClick={handleAddEmployee}>
                   <Plus size={20} className="mr-2" />
-                  Cadastrar Primeiro Funcionário
+                  Cadastrar Primeiro Auxiliar
                 </Button>
               </>
             )}
@@ -190,7 +190,7 @@ function EmployeesList() {
       {/* Floating Action Button */}
       <FloatingActionButton 
         onClick={handleAddEmployee}
-        label="Novo Funcionário"
+        label="Novo Auxiliar"
       />
     </div>
   );

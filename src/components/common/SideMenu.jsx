@@ -44,7 +44,7 @@ function SideMenu() {
       icon: <Users size={20} />,
       items: [
         { path: '/clientes', label: 'Clientes', icon: <Users size={16} /> },
-        { path: '/funcionarios', label: 'Funcionários', icon: <UserCheck size={16} /> },
+        { path: '/auxiliares', label: 'Auxiliares', icon: <UserCheck size={16} /> },
         { path: '/aeronaves', label: 'Aeronaves', icon: <Plane size={16} /> },
         { path: '/culturas', label: 'Culturas', icon: <Wheat size={16} /> }
       ]

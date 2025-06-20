@@ -60,7 +60,7 @@ function Settings() {
     },
     {
       title: "Sério mesmo?",
-      message: "São todos os clientes, serviços, funcionários...",
+      message: "São todos os clientes, serviços, auxiliares...",
       buttonText: "Ainda tenho certeza",
       color: "bg-orange-500 hover:bg-orange-600", 
       icon: "😰"
@@ -258,7 +258,7 @@ Importar backup da safra ${backupData.safra || 'N/A'}?
 Dados no backup:
 • ${data.services?.length || 0} serviços
 • ${data.clients?.length || 0} clientes  
-• ${data.employees?.length || 0} funcionários
+• ${data.employees?.length || 0} auxiliares
 • ${data.aircrafts?.length || 0} aeronaves
 • ${data.cultures?.length || 0} culturas
 
@@ -343,32 +343,39 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
   
   // Populate system with demo data
   const handlePopulateSystem = () => {
+    setShowDemoConfirm(true);
+  };
+  
+  const confirmPopulateSystem = async () => {
     setIsPopulating(true);
+    setShowDemoConfirm(false);
     
     try {
-      const success = populateSystemDemo();
+      // Clear existing data first
+      clearAllData();
       
-      if (success) {
-        setImportStatus({
-          type: 'success',
-          message: 'Sistema populado com 25 clientes, 5 funcionários, 8 aeronaves, 12 culturas e 120 serviços!'
-        });
-      } else {
-        setImportStatus({
-          type: 'error',
-          message: 'Erro ao popular sistema. Tente novamente.'
-        });
-      }
+      // Populate with new demo data (including photos)
+      await populateSystemDemo();
+      
+      setImportStatus({
+        type: 'success',
+        message: 'Sistema populado com 25 clientes, 5 auxiliares, 8 aeronaves, 12 culturas e 120 serviços!'
+      });
+      setTimeout(() => setImportStatus(null), 5000);
     } catch (error) {
       console.error('Error populating system:', error);
       setImportStatus({
         type: 'error',
-        message: 'Erro ao popular sistema. Tente novamente.'
+        message: 'Erro ao popular o sistema. Tente novamente.'
       });
+      setTimeout(() => setImportStatus(null), 3000);
     } finally {
       setIsPopulating(false);
-      setTimeout(() => setImportStatus(null), 5000);
     }
+  };
+  
+  const cancelPopulateSystem = () => {
+    setShowDemoConfirm(false);
   };
   
   // Clear demo data
@@ -600,7 +607,7 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
             <span className="cf-text-small cf-bold">{clients.length}</span>
           </div>
           <div className="cf-flex cf-justify-between cf-items-center">
-            <span className="cf-text-small">Funcionários</span>
+            <span className="cf-text-small">Auxiliares</span>
             <span className="cf-text-small cf-bold">{employees.length}</span>
           </div>
           <div className="cf-flex cf-justify-between cf-items-center">
@@ -711,7 +718,7 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
                 </div>
                 <div className="grid grid-cols-2 gap-2 cf-mb-4">
                   <div className="cf-text-small text-green-600">• 25 clientes variados</div>
-                  <div className="cf-text-small text-green-600">• 5 funcionários</div>
+                  <div className="cf-text-small text-green-600">• 5 auxiliares</div>
                   <div className="cf-text-small text-green-600">• 8 aeronaves diferentes</div>
                   <div className="cf-text-small text-green-600">• 12 culturas</div>
                   <div className="cf-text-small text-green-600 col-span-2">• 120 serviços distribuídos no ano</div>
@@ -719,19 +726,51 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
               </div>
             </div>
             
-            <Button
-              onClick={handlePopulateSystem}
-              disabled={isPopulating}
-              className="w-full"
-              variant="success"
-            >
-              <Database size={20} className="mr-2" />
-              {isPopulating ? 'Populando Sistema...' : 'Popular Sistema para Demonstração'}
-            </Button>
-            
-            <div className="cf-text-small text-green-600 cf-mt-3 text-center">
-              💡 Perfeito para testar relatórios, busca e performance
-            </div>
+            {/* Simple confirmation dialog */}
+            {showDemoConfirm ? (
+              <div className="cf-border cf-border-green-300 cf-bg-green-100 rounded-lg cf-p-3 cf-mb-4">
+                <div className="cf-flex cf-items-center cf-gap-2 cf-mb-3">
+                  <span className="text-lg">📸</span>
+                  <div>
+                    <div className="cf-text-small cf-bold text-green-800">
+                      Popular sistema com dados e fotos de demonstração?
+                    </div>
+                    <div className="cf-text-small text-green-600">
+                      Isso irá limpar dados existentes e criar novos com fotos de exemplo.
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="cf-flex cf-gap-2">
+                  <Button
+                    onClick={confirmPopulateSystem}
+                    size="small"
+                    className="bg-green-600 hover:bg-green-700 text-white"
+                    disabled={isPopulating}
+                  >
+                    {isPopulating ? 'Populando...' : 'Sim, popular'}
+                  </Button>
+                  <Button
+                    onClick={cancelPopulateSystem}
+                    size="small"
+                    variant="outline"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                  >
+                    Cancelar
+                  </Button>
+                </div>
+              </div>
+            ) : (
+              <Button
+                onClick={handlePopulateSystem}
+                disabled={isPopulating}
+                className="w-full"
+                variant="success"
+              >
+                <Database size={20} className="mr-2" />
+                {isPopulating ? 'Populando Sistema...' : 'Popular Sistema para Demonstração'}
+              </Button>
+            )}
           </div>
 
           {/* Clear Demo Data Section */}

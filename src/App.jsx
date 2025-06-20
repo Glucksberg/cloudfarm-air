@@ -32,9 +32,9 @@ function App() {
             <Route path="/clientes" element={<ClientsList />} />
             <Route path="/clientes/novo" element={<ClientForm />} />
             <Route path="/clientes/editar/:id" element={<ClientForm />} />
-            <Route path="/funcionarios" element={<EmployeesList />} />
-            <Route path="/funcionarios/novo" element={<EmployeeForm />} />
-            <Route path="/funcionarios/editar/:id" element={<EmployeeForm />} />
+            <Route path="/auxiliares" element={<EmployeesList />} />
+            <Route path="/auxiliares/novo" element={<EmployeeForm />} />
+            <Route path="/auxiliares/editar/:id" element={<EmployeeForm />} />
             <Route path="/aeronaves" element={<AircraftsList />} />
             <Route path="/aeronaves/novo" element={<AircraftForm />} />
             <Route path="/aeronaves/editar/:id" element={<AircraftForm />} />

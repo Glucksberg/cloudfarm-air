@@ -274,7 +274,7 @@ function Reports() {
       'Data',
       'Tipo de Serviço',
       'Cliente',
-      'Funcionário',
+      'Auxiliar',
       'Aeronave',
       'Cultura',
       'Área (ha)',

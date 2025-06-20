@@ -48,7 +48,7 @@ export const FORM_FIELDS = {
     { name: 'tipoServico', label: 'Tipo de Serviço', type: 'select', required: true },
     { name: 'clienteId', label: 'Cliente', type: 'select', required: true },
     { name: 'aeronaveId', label: 'Aeronave', type: 'select', required: true },
-    { name: 'funcionarioId', label: 'Funcionário', type: 'select', required: true },
+    { name: 'funcionarioId', label: 'Auxiliar', type: 'select', required: true },
     { name: 'culturaId', label: 'Cultura', type: 'select', required: true },
     { name: 'area', label: 'Área (ha)', type: 'number', required: true },
     { name: 'vazao', label: 'Vazão (L/ha)', type: 'number', required: true },
@@ -250,4 +250,3 @@ export const FORMATTING = {
     maximumFractionDigits: 1
   }
 };
-

@@ -73,7 +73,7 @@ export const validateServiceData = (service) => {
   }
   
   if (!service.funcionarioId) {
-    errors.funcionarioId = 'Funcionário é obrigatório';
+    errors.funcionarioId = 'Auxiliar é obrigatório';
   }
   
   if (!service.culturaId) {
