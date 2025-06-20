@@ -21,6 +21,7 @@ function Button({
   };
   
   const sizeClasses = {
+    sm: 'px-2 py-1 text-xs',
     small: 'px-3 py-2 text-sm',
     medium: 'px-6 py-3',
     large: 'px-8 py-4 text-lg'

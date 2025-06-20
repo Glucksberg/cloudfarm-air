@@ -6,6 +6,7 @@ import { SERVICE_TYPES } from '../utils/constants';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
 import FloatingActionButton from '../components/common/FloatingActionButton';
+import AirplaneIcon from '../components/common/AirplaneIcon';
 import { Search, Edit, Trash2, Plus, Calendar, Clock, DollarSign, User, Plane } from 'lucide-react';
 
 function ServicesList() {
@@ -104,7 +105,14 @@ function ServicesList() {
   
   const getServiceTypeIcon = (type) => {
     const serviceType = SERVICE_TYPES.find(st => st.name === type);
-    return serviceType ? serviceType.icon : '🚁';
+    return serviceType ? serviceType.icon : <AirplaneIcon size={20} className="text-blue-600" />;
+  };
+  
+  const renderServiceTypeIcon = (type) => {
+    const icon = getServiceTypeIcon(type);
+    // Se for um componente React (object), renderiza diretamente
+    // Se for string (emoji), renderiza dentro de uma div
+    return typeof icon === 'string' ? <span className="cf-text-large">{icon}</span> : icon;
   };
   
   const calculateServiceMetrics = (service) => {
@@ -279,7 +287,7 @@ function ServicesList() {
                 <div className="cf-flex cf-items-start cf-justify-between">
                   <div className="cf-flex cf-items-center cf-gap-3">
                     <div className="cf-text-large">
-                      {getServiceTypeIcon(service.tipoServico)}
+                      {renderServiceTypeIcon(service.tipoServico)}
                     </div>
                     <div>
                       <div className="cf-text-medium cf-bold">
@@ -324,7 +332,7 @@ function ServicesList() {
                   
                   {/* Aircraft */}
                   <div className="cf-flex cf-items-center cf-gap-2">
-                    <Plane size={16} className="text-gray-400" />
+                    <AirplaneIcon size={16} className="text-gray-400" />
                     <div>
                       <div className="cf-bold">{aircraft?.prefixo || 'N/A'}</div>
                       <div className="text-gray-600">{aircraft?.modelo || 'Aeronave não encontrada'}</div>

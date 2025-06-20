@@ -207,7 +207,7 @@ export function useCultures() {
 
 // Hook for managing services
 export function useServices() {
-  const { state, dispatch, actionTypes } = useApp();
+  const { state, dispatch, actionTypes, getCurrentHarvestServices } = useApp();
   
   const addService = (serviceData) => {
     const newService = {
@@ -234,29 +234,32 @@ export function useServices() {
   };
   
   const getServiceById = (id) => {
-    return state.services.find(service => service.id === id);
-  };
-  
-  const getServicesForCurrentHarvest = () => {
-    return state.services.filter(service => service.safraId === state.currentHarvest.id);
+    const currentServices = getCurrentHarvestServices();
+    return currentServices.find(service => service.id === id);
   };
   
   const clearServices = () => {
-    dispatch({ type: actionTypes.SET_SERVICES, payload: [] });
+    const currentHarvestId = state.currentHarvest.id;
+    dispatch({ type: actionTypes.CLEAR_SERVICES_FOR_HARVEST, payload: currentHarvestId });
   };
   
   const importServices = (servicesData) => {
-    dispatch({ type: actionTypes.SET_SERVICES, payload: servicesData });
+    const currentHarvestId = state.currentHarvest.id;
+    dispatch({ 
+      type: actionTypes.SET_SERVICES_FOR_HARVEST, 
+      payload: { 
+        harvestId: currentHarvestId, 
+        services: servicesData 
+      } 
+    });
   };
   
   return {
-    services: state.services,
-    currentHarvestServices: getServicesForCurrentHarvest(),
+    services: getCurrentHarvestServices(),
     addService,
     updateService,
     deleteService,
     getServiceById,
-    getServicesForCurrentHarvest,
     clearServices,
     importServices
   };
@@ -264,43 +267,22 @@ export function useServices() {
 
 // Hook for managing harvests
 export function useHarvests() {
-  const { state, dispatch, actionTypes } = useApp();
+  const { state, addHarvest, updateHarvest, deleteHarvest, setCurrentHarvest } = useApp();
   
-  const addHarvest = (harvestData) => {
-    const newHarvest = {
-      ...harvestData,
-      id: generateId(),
-      createdAt: new Date().toISOString()
-    };
-    dispatch({ type: actionTypes.ADD_HARVEST, payload: newHarvest });
-    return newHarvest;
+  const getCurrentHarvest = () => {
+    return state.currentHarvest;
   };
   
-  const updateHarvest = (id, harvestData) => {
-    const updatedHarvest = {
-      ...harvestData,
-      id,
-      updatedAt: new Date().toISOString()
-    };
-    dispatch({ type: actionTypes.UPDATE_HARVEST, payload: updatedHarvest });
-    return updatedHarvest;
+  const getAllHarvests = () => {
+    return state.harvests;
   };
   
-  const setCurrentHarvest = (harvest) => {
-    // Update all harvests to inactive
-    state.harvests.forEach(h => {
-      if (h.id !== harvest.id) {
-        dispatch({ 
-          type: actionTypes.UPDATE_HARVEST, 
-          payload: { ...h, active: false } 
-        });
-      }
-    });
-    
-    // Set the selected harvest as active
-    const activeHarvest = { ...harvest, active: true };
-    dispatch({ type: actionTypes.UPDATE_HARVEST, payload: activeHarvest });
-    dispatch({ type: actionTypes.SET_CURRENT_HARVEST, payload: activeHarvest });
+  const getHarvestById = (id) => {
+    return state.harvests.find(harvest => harvest.id === id);
+  };
+  
+  const getServicesCountForHarvest = (harvestId) => {
+    return state.servicesByHarvest[harvestId]?.length || 0;
   };
   
   return {
@@ -308,7 +290,12 @@ export function useHarvests() {
     currentHarvest: state.currentHarvest,
     addHarvest,
     updateHarvest,
-    setCurrentHarvest
+    deleteHarvest,
+    setCurrentHarvest,
+    getCurrentHarvest,
+    getAllHarvests,
+    getHarvestById,
+    getServicesCountForHarvest
   };
 }
 

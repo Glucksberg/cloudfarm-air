@@ -39,6 +39,38 @@ function Reports() {
   const [selectedClient, setSelectedClient] = useState('');
   const [selectedServiceType, setSelectedServiceType] = useState('');
   
+  // Função para converter data ISO para formato brasileiro
+  const formatDateToBrazilian = (isoDate) => {
+    if (!isoDate) return '';
+    const date = new Date(isoDate + 'T00:00:00');
+    return date.toLocaleDateString('pt-BR');
+  };
+  
+  // Função para converter data brasileira para ISO
+  const formatDateToISO = (brazilianDate) => {
+    if (!brazilianDate) return '';
+    const [day, month, year] = brazilianDate.split('/');
+    return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+  };
+  
+  // Estados para exibição das datas em formato brasileiro
+  const [displayDates, setDisplayDates] = useState({
+    start: formatDateToBrazilian(dateRange.start),
+    end: formatDateToBrazilian(dateRange.end)
+  });
+  
+  // Função para lidar com mudança na data de início
+  const handleStartDateChange = (value) => {
+    setDateRange(prev => ({ ...prev, start: value }));
+    setDisplayDates(prev => ({ ...prev, start: formatDateToBrazilian(value) }));
+  };
+  
+  // Função para lidar com mudança na data de fim
+  const handleEndDateChange = (value) => {
+    setDateRange(prev => ({ ...prev, end: value }));
+    setDisplayDates(prev => ({ ...prev, end: formatDateToBrazilian(value) }));
+  };
+  
   // Filter services based on date range and filters
   const filteredServices = services.filter(service => {
     const serviceDate = new Date(service.data);
@@ -188,7 +220,7 @@ function Reports() {
     
     // Date range
     doc.setFontSize(12);
-    doc.text(`Período: ${formatDate(dateRange.start)} a ${formatDate(dateRange.end)}`, 20, 45);
+    doc.text(`Período: ${displayDates.start} a ${displayDates.end}`, 20, 45);
     
     // Summary metrics
     let yPos = 60;
@@ -345,23 +377,43 @@ function Reports() {
               <label className="block cf-text-small cf-bold cf-mb-2">
                 Data Início
               </label>
-              <input
-                type="date"
-                value={dateRange.start}
-                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-                className="cf-input"
-              />
+              <div className="space-y-2">
+                <input
+                  type="date"
+                  value={dateRange.start}
+                  onChange={(e) => handleStartDateChange(e.target.value)}
+                  className="cf-input"
+                  lang="pt-BR"
+                  data-date-format="dd/mm/yyyy"
+                />
+                {displayDates.start && (
+                  <div className="cf-text-small text-gray-600 cf-flex cf-items-center cf-gap-2">
+                    <Calendar size={16} />
+                    <span>{displayDates.start}</span>
+                  </div>
+                )}
+              </div>
             </div>
             <div>
               <label className="block cf-text-small cf-bold cf-mb-2">
                 Data Fim
               </label>
-              <input
-                type="date"
-                value={dateRange.end}
-                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-                className="cf-input"
-              />
+              <div className="space-y-2">
+                <input
+                  type="date"
+                  value={dateRange.end}
+                  onChange={(e) => handleEndDateChange(e.target.value)}
+                  className="cf-input"
+                  lang="pt-BR"
+                  data-date-format="dd/mm/yyyy"
+                />
+                {displayDates.end && (
+                  <div className="cf-text-small text-gray-600 cf-flex cf-items-center cf-gap-2">
+                    <Calendar size={16} />
+                    <span>{displayDates.end}</span>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
           
@@ -404,6 +456,36 @@ function Reports() {
             </div>
           </div>
         </div>
+      </Card>
+      
+      {/* Export Actions */}
+      <Card title="Exportar Relatórios">
+        <div className="cf-flex cf-gap-4">
+          <Button
+            onClick={exportToPDF}
+            className="flex-1"
+            disabled={filteredServices.length === 0}
+          >
+            <FileText size={20} className="mr-2" />
+            Exportar PDF
+          </Button>
+          
+          <Button
+            onClick={exportToCSV}
+            variant="outline"
+            className="flex-1"
+            disabled={filteredServices.length === 0}
+          >
+            <Download size={20} className="mr-2" />
+            Exportar CSV
+          </Button>
+        </div>
+        
+        {filteredServices.length === 0 && (
+          <div className="cf-text-small text-gray-500 cf-mt-2 text-center">
+            Nenhum serviço encontrado no período selecionado
+          </div>
+        )}
       </Card>
       
       {/* Summary Metrics */}
@@ -492,36 +574,6 @@ function Reports() {
           )}
         </>
       )}
-      
-      {/* Export Actions */}
-      <Card title="Exportar Relatórios">
-        <div className="cf-flex cf-gap-4">
-          <Button
-            onClick={exportToPDF}
-            className="flex-1"
-            disabled={filteredServices.length === 0}
-          >
-            <FileText size={20} className="mr-2" />
-            Exportar PDF
-          </Button>
-          
-          <Button
-            onClick={exportToCSV}
-            variant="outline"
-            className="flex-1"
-            disabled={filteredServices.length === 0}
-          >
-            <Download size={20} className="mr-2" />
-            Exportar CSV
-          </Button>
-        </div>
-        
-        {filteredServices.length === 0 && (
-          <div className="cf-text-small text-gray-500 cf-mt-2 text-center">
-            Nenhum serviço encontrado no período selecionado
-          </div>
-        )}
-      </Card>
     </div>
   );
 }

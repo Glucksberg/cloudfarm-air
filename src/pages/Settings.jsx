@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../contexts/AppContext';
-import { useServices, useClients, useEmployees, useAircrafts, useCultures } from '../hooks/useEntities';
+import { useServices, useClients, useEmployees, useAircrafts, useCultures, useHarvests } from '../hooks/useEntities';
 import { useFormatters } from '../hooks/useUtils';
 import Card from '../components/common/Card';
 import Button from '../components/common/Button';
@@ -14,19 +14,33 @@ import {
   CheckCircle,
   Settings as SettingsIcon,
   Save,
-  RotateCcw
+  RotateCcw,
+  Plus,
+  Edit,
+  Star
 } from 'lucide-react';
 
 function Settings() {
-  const { currentSafra, setCurrentSafra, clearAllData, populateSystemDemo } = useApp();
+  const { clearAllData, populateSystemDemo } = useApp();
   const { services, clearServices, importServices } = useServices();
   const { clients, clearClients, importClients } = useClients();
   const { employees, clearEmployees, importEmployees } = useEmployees();
   const { aircrafts, clearAircrafts, importAircrafts } = useAircrafts();
   const { cultures, clearCultures, importCultures } = useCultures();
+  const { 
+    harvests, 
+    currentHarvest, 
+    addHarvest, 
+    updateHarvest, 
+    deleteHarvest, 
+    setCurrentHarvest, 
+    getServicesCountForHarvest 
+  } = useHarvests();
   const { formatDate } = useFormatters();
   
   const [newSafra, setNewSafra] = useState('');
+  const [editingSafra, setEditingSafra] = useState(null);
+  const [editSafraName, setEditSafraName] = useState('');
   const [isExporting, setIsExporting] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [importStatus, setImportStatus] = useState(null);
@@ -35,19 +49,106 @@ function Settings() {
   
   // Generate current safra if not set
   const getCurrentSafra = () => {
-    if (currentSafra) return currentSafra;
+    if (currentHarvest) return currentHarvest.name;
     const currentYear = new Date().getFullYear();
     const nextYear = currentYear + 1;
     return `${currentYear}/${String(nextYear).slice(-2)}`;
   };
   
   // Safra management
+  const handleAddSafra = () => {
+    if (!newSafra.trim()) return;
+    
+    try {
+      const newHarvest = addHarvest(newSafra.trim());
+      setNewSafra('');
+      setImportStatus({
+        type: 'success',
+        message: `Safra "${newHarvest.name}" criada com sucesso!`
+      });
+      setTimeout(() => setImportStatus(null), 3000);
+    } catch (error) {
+      setImportStatus({
+        type: 'error',
+        message: 'Erro ao criar safra. Tente novamente.'
+      });
+      setTimeout(() => setImportStatus(null), 3000);
+    }
+  };
+  
+  const handleEditSafra = (harvest) => {
+    setEditingSafra(harvest.id);
+    setEditSafraName(harvest.name);
+  };
+  
+  const handleSaveEditSafra = () => {
+    if (!editSafraName.trim()) return;
+    
+    try {
+      updateHarvest(editingSafra, { name: editSafraName.trim() });
+      setEditingSafra(null);
+      setEditSafraName('');
+      setImportStatus({
+        type: 'success',
+        message: 'Safra atualizada com sucesso!'
+      });
+      setTimeout(() => setImportStatus(null), 3000);
+    } catch (error) {
+      setImportStatus({
+        type: 'error',
+        message: 'Erro ao atualizar safra. Tente novamente.'
+      });
+      setTimeout(() => setImportStatus(null), 3000);
+    }
+  };
+  
+  const handleCancelEditSafra = () => {
+    setEditingSafra(null);
+    setEditSafraName('');
+  };
+  
+  const handleDeleteSafra = (harvestId) => {
+    const harvest = harvests.find(h => h.id === harvestId);
+    if (!harvest) return;
+    
+    const servicesCount = getServicesCountForHarvest(harvestId);
+    const confirmMessage = servicesCount > 0 
+      ? `Tem certeza que deseja excluir a safra "${harvest.name}"?\n\nEsta safra possui ${servicesCount} serviços que serão perdidos permanentemente.`
+      : `Tem certeza que deseja excluir a safra "${harvest.name}"?`;
+    
+    if (window.confirm(confirmMessage)) {
+      try {
+        deleteHarvest(harvestId);
+        setImportStatus({
+          type: 'success',
+          message: `Safra "${harvest.name}" excluída com sucesso!`
+        });
+        setTimeout(() => setImportStatus(null), 3000);
+      } catch (error) {
+        setImportStatus({
+          type: 'error',
+          message: error.message || 'Erro ao excluir safra.'
+        });
+        setTimeout(() => setImportStatus(null), 3000);
+      }
+    }
+  };
+  
+  const handleSelectSafra = (harvestId) => {
+    setCurrentHarvest(harvestId);
+    setImportStatus({
+      type: 'success',
+      message: 'Safra selecionada com sucesso!'
+    });
+    setTimeout(() => setImportStatus(null), 2000);
+  };
+  
+  // Legacy safra change function
   const handleSafraChange = () => {
     if (!newSafra.trim()) return;
     
     if (window.confirm(`Tem certeza que deseja alterar a safra para "${newSafra}"? Isso criará uma nova safra e os dados atuais serão mantidos.`)) {
-      setCurrentSafra(newSafra.trim());
-      setNewSafra('');
+      handleAddSafra();
     }
   };
   
@@ -147,7 +248,7 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
           
           // Update safra if available
           if (backupData.safra) {
-            setCurrentSafra(backupData.safra);
+            setCurrentHarvest({ name: backupData.safra });
           }
           
           setImportStatus({
@@ -248,24 +349,26 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
         </Card>
       )}
       
-      {/* Current Safra */}
-      <Card title="Safra Atual">
-        <div className="space-y-4">
-          <div className="cf-flex cf-items-center cf-gap-3">
-            <Calendar size={24} className="text-blue-600" />
-            <div>
-              <div className="cf-text-medium cf-bold">
-                Safra {getCurrentSafra()}
+      {/* Safras Management */}
+      <Card title="Gerenciamento de Safras">
+        <div className="space-y-6">
+          {/* Current Harvest Display */}
+          <div className="cf-flex cf-items-center cf-gap-3 cf-p-4 cf-bg-blue-50 rounded-lg">
+            <Star size={24} className="text-blue-600" />
+            <div className="flex-1">
+              <div className="cf-text-medium cf-bold text-blue-900">
+                Safra Atual: {currentHarvest?.name}
               </div>
-              <div className="cf-text-small text-gray-600">
-                {getTotalDataCount()} registros no total
+              <div className="cf-text-small text-blue-700">
+                {services.length} serviços registrados nesta safra
               </div>
             </div>
           </div>
           
+          {/* Add New Harvest */}
           <div className="cf-border-t cf-pt-4">
             <div className="cf-text-small cf-bold cf-mb-2">
-              Alterar Safra
+              Adicionar Nova Safra
             </div>
             <div className="cf-flex cf-gap-2">
               <input
@@ -274,18 +377,119 @@ ATENÇÃO: Isso substituirá todos os dados atuais!
                 onChange={(e) => setNewSafra(e.target.value)}
                 placeholder="Ex: 2025/26"
                 className="cf-input flex-1"
+                onKeyPress={(e) => e.key === 'Enter' && handleAddSafra()}
               />
               <Button
-                onClick={handleSafraChange}
+                onClick={handleAddSafra}
                 disabled={!newSafra.trim()}
-                variant="outline"
               >
-                <Save size={16} className="mr-2" />
-                Alterar
+                <Plus size={16} className="mr-2" />
+                Adicionar
               </Button>
             </div>
-            <div className="cf-text-small text-gray-500 cf-mt-2">
-              Alterar a safra criará uma nova safra mantendo os dados atuais
+          </div>
+          
+          {/* Harvests List */}
+          <div className="cf-border-t cf-pt-4">
+            <div className="cf-text-small cf-bold cf-mb-3">
+              Todas as Safras ({harvests.length})
+            </div>
+            <div className="space-y-2">
+              {harvests.map((harvest) => (
+                <div
+                  key={harvest.id}
+                  className={`cf-flex cf-items-center cf-justify-between cf-p-3 rounded-lg border ${
+                    harvest.id === currentHarvest?.id
+                      ? 'border-blue-500 bg-blue-50'
+                      : 'border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  <div className="cf-flex cf-items-center cf-gap-3">
+                    {harvest.id === currentHarvest?.id && (
+                      <Star size={16} className="text-blue-600" />
+                    )}
+                    <div>
+                      {editingSafra === harvest.id ? (
+                        <div className="cf-flex cf-gap-2">
+                          <input
+                            type="text"
+                            value={editSafraName}
+                            onChange={(e) => setEditSafraName(e.target.value)}
+                            className="cf-input cf-text-small"
+                            style={{ width: '120px' }}
+                            onKeyPress={(e) => {
+                              if (e.key === 'Enter') handleSaveEditSafra();
+                              if (e.key === 'Escape') handleCancelEditSafra();
+                            }}
+                            autoFocus
+                          />
+                          <Button
+                            onClick={handleSaveEditSafra}
+                            disabled={!editSafraName.trim()}
+                            size="sm"
+                            variant="outline"
+                          >
+                            <Save size={14} />
+                          </Button>
+                          <Button
+                            onClick={handleCancelEditSafra}
+                            size="sm"
+                            variant="outline"
+                          >
+                            ✕
+                          </Button>
+                        </div>
+                      ) : (
+                        <>
+                          <div className="cf-text-medium cf-bold">
+                            {harvest.name}
+                            {harvest.id === currentHarvest?.id && (
+                              <span className="cf-text-small text-blue-600 cf-ml-2">(Ativa)</span>
+                            )}
+                          </div>
+                          <div className="cf-text-small text-gray-600">
+                            {getServicesCountForHarvest(harvest.id)} serviços • Criada em {formatDate(harvest.createdAt)}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {editingSafra !== harvest.id && (
+                    <div className="cf-flex cf-gap-1">
+                      {harvest.id !== currentHarvest?.id && (
+                        <Button
+                          onClick={() => handleSelectSafra(harvest.id)}
+                          size="sm"
+                          variant="outline"
+                          title="Selecionar esta safra"
+                        >
+                          <Star size={14} />
+                        </Button>
+                      )}
+                      <Button
+                        onClick={() => handleEditSafra(harvest)}
+                        size="sm"
+                        variant="outline"
+                        title="Editar nome da safra"
+                      >
+                        <Edit size={14} />
+                      </Button>
+                      {harvests.length > 1 && (
+                        <Button
+                          onClick={() => handleDeleteSafra(harvest.id)}
+                          size="sm"
+                          variant="outline"
+                          className="text-red-600 hover:bg-red-50"
+                          title="Excluir safra"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>

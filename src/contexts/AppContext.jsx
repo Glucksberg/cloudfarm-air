@@ -8,7 +8,8 @@ const initialState = {
   currentHarvest: {
     id: '1',
     name: '24/25',
-    active: true
+    active: true,
+    createdAt: new Date()
   },
   
   // All harvests
@@ -16,12 +17,16 @@ const initialState = {
     { id: '1', name: '24/25', active: true, createdAt: new Date() }
   ],
   
-  // Entities - inicialmente vazios
+  // Services organized by harvest - estrutura: { harvestId: [services] }
+  servicesByHarvest: {
+    '1': [] // Safra 24/25 inicia vazia
+  },
+  
+  // Entities - compartilhados entre safras
   clients: [],
   employees: [],
   aircrafts: [],
   cultures: [],
-  services: [],
   
   // UI state
   sideMenuOpen: false,
@@ -50,32 +55,43 @@ const actionTypes = {
   SET_CURRENT_HARVEST: 'SET_CURRENT_HARVEST',
   ADD_HARVEST: 'ADD_HARVEST',
   UPDATE_HARVEST: 'UPDATE_HARVEST',
+  DELETE_HARVEST: 'DELETE_HARVEST',
   
   // Entity actions
   ADD_CLIENT: 'ADD_CLIENT',
   UPDATE_CLIENT: 'UPDATE_CLIENT',
   DELETE_CLIENT: 'DELETE_CLIENT',
   SET_CLIENTS: 'SET_CLIENTS',
+  CLEAR_CLIENTS: 'CLEAR_CLIENTS',
+  IMPORT_CLIENTS: 'IMPORT_CLIENTS',
   
   ADD_EMPLOYEE: 'ADD_EMPLOYEE',
   UPDATE_EMPLOYEE: 'UPDATE_EMPLOYEE',
   DELETE_EMPLOYEE: 'DELETE_EMPLOYEE',
   SET_EMPLOYEES: 'SET_EMPLOYEES',
+  CLEAR_EMPLOYEES: 'CLEAR_EMPLOYEES',
+  IMPORT_EMPLOYEES: 'IMPORT_EMPLOYEES',
   
   ADD_AIRCRAFT: 'ADD_AIRCRAFT',
   UPDATE_AIRCRAFT: 'UPDATE_AIRCRAFT',
   DELETE_AIRCRAFT: 'DELETE_AIRCRAFT',
   SET_AIRCRAFTS: 'SET_AIRCRAFTS',
+  CLEAR_AIRCRAFTS: 'CLEAR_AIRCRAFTS',
+  IMPORT_AIRCRAFTS: 'IMPORT_AIRCRAFTS',
   
   ADD_CULTURE: 'ADD_CULTURE',
   UPDATE_CULTURE: 'UPDATE_CULTURE',
   DELETE_CULTURE: 'DELETE_CULTURE',
   SET_CULTURES: 'SET_CULTURES',
+  CLEAR_CULTURES: 'CLEAR_CULTURES',
+  IMPORT_CULTURES: 'IMPORT_CULTURES',
   
+  // Service actions - agora trabalham com safras
   ADD_SERVICE: 'ADD_SERVICE',
   UPDATE_SERVICE: 'UPDATE_SERVICE',
   DELETE_SERVICE: 'DELETE_SERVICE',
-  SET_SERVICES: 'SET_SERVICES',
+  SET_SERVICES_FOR_HARVEST: 'SET_SERVICES_FOR_HARVEST',
+  CLEAR_SERVICES_FOR_HARVEST: 'CLEAR_SERVICES_FOR_HARVEST',
   
   // Data actions
   LOAD_DATA: 'LOAD_DATA',
@@ -98,15 +114,27 @@ function appReducer(state, action) {
       };
       
     case actionTypes.SET_CURRENT_HARVEST:
+      // Atualiza a safra atual e marca as outras como inativas
+      const updatedHarvests = state.harvests.map(harvest => ({
+        ...harvest,
+        active: harvest.id === action.payload.id
+      }));
+      
       return {
         ...state,
-        currentHarvest: action.payload
+        currentHarvest: action.payload,
+        harvests: updatedHarvests
       };
       
     case actionTypes.ADD_HARVEST:
+      // Cria nova safra e inicializa array de serviços vazio
       return {
         ...state,
-        harvests: [...state.harvests, action.payload]
+        harvests: [...state.harvests, action.payload],
+        servicesByHarvest: {
+          ...state.servicesByHarvest,
+          [action.payload.id]: []
+        }
       };
       
     case actionTypes.UPDATE_HARVEST:
@@ -115,6 +143,14 @@ function appReducer(state, action) {
         harvests: state.harvests.map(harvest =>
           harvest.id === action.payload.id ? action.payload : harvest
         )
+      };
+      
+    case actionTypes.DELETE_HARVEST:
+      const { [action.payload]: deletedServices, ...remainingServices } = state.servicesByHarvest;
+      return {
+        ...state,
+        harvests: state.harvests.filter(harvest => harvest.id !== action.payload),
+        servicesByHarvest: remainingServices
       };
       
     // Client actions
@@ -227,29 +263,55 @@ function appReducer(state, action) {
       
     // Service actions
     case actionTypes.ADD_SERVICE:
+      const currentHarvestId = state.currentHarvest.id;
       return {
         ...state,
-        services: [...state.services, action.payload]
+        servicesByHarvest: {
+          ...state.servicesByHarvest,
+          [currentHarvestId]: [...(state.servicesByHarvest[currentHarvestId] || []), action.payload]
+        }
       };
       
     case actionTypes.UPDATE_SERVICE:
+      const updateHarvestId = state.currentHarvest.id;
       return {
         ...state,
-        services: state.services.map(service =>
-          service.id === action.payload.id ? action.payload : service
-        )
+        servicesByHarvest: {
+          ...state.servicesByHarvest,
+          [updateHarvestId]: state.servicesByHarvest[updateHarvestId].map(service =>
+            service.id === action.payload.id ? action.payload : service
+          )
+        }
       };
       
     case actionTypes.DELETE_SERVICE:
+      const deleteHarvestId = state.currentHarvest.id;
       return {
         ...state,
-        services: state.services.filter(service => service.id !== action.payload)
+        servicesByHarvest: {
+          ...state.servicesByHarvest,
+          [deleteHarvestId]: state.servicesByHarvest[deleteHarvestId].filter(
+            service => service.id !== action.payload
+          )
+        }
       };
       
-    case actionTypes.SET_SERVICES:
+    case actionTypes.SET_SERVICES_FOR_HARVEST:
       return {
         ...state,
-        services: action.payload
+        servicesByHarvest: {
+          ...state.servicesByHarvest,
+          [action.payload.harvestId]: action.payload.services
+        }
+      };
+      
+    case actionTypes.CLEAR_SERVICES_FOR_HARVEST:
+      return {
+        ...state,
+        servicesByHarvest: {
+          ...state.servicesByHarvest,
+          [action.payload]: []
+        }
       };
       
     case actionTypes.LOAD_DATA:
@@ -262,7 +324,10 @@ function appReducer(state, action) {
       return {
         ...initialState,
         currentHarvest: state.currentHarvest,
-        harvests: state.harvests
+        harvests: state.harvests,
+        servicesByHarvest: {
+          [state.currentHarvest.id]: []
+        }
       };
       
     default:
@@ -322,15 +387,15 @@ export function AppProvider({ children }) {
     const dataToSave = {
       currentHarvest: state.currentHarvest,
       harvests: state.harvests,
+      servicesByHarvest: state.servicesByHarvest,
       clients: state.clients,
       employees: state.employees,
       aircrafts: state.aircrafts,
-      cultures: state.cultures,
-      services: state.services
+      cultures: state.cultures
     };
     
     debouncedSave(dataToSave);
-  }, [state.currentHarvest, state.harvests, state.clients, state.employees, state.aircrafts, state.cultures, state.services, debouncedSave]);
+  }, [state.currentHarvest, state.harvests, state.servicesByHarvest, state.clients, state.employees, state.aircrafts, state.cultures, debouncedSave]);
   
   // Clear all data function
   const clearAllData = () => {
@@ -340,16 +405,66 @@ export function AppProvider({ children }) {
     console.log('✅ Todos os dados foram removidos!');
   };
   
-  // Set current safra function
-  const setCurrentSafra = (safraName) => {
-    const newSafra = {
+  // Harvest management functions
+  const addHarvest = (name) => {
+    const newHarvest = {
       id: generateId(),
-      name: safraName,
-      active: true,
+      name: name,
+      active: false,
       createdAt: new Date()
     };
-    dispatch({ type: actionTypes.SET_CURRENT_HARVEST, payload: newSafra });
-    dispatch({ type: actionTypes.ADD_HARVEST, payload: newSafra });
+    dispatch({ type: actionTypes.ADD_HARVEST, payload: newHarvest });
+    return newHarvest;
+  };
+  
+  const updateHarvest = (harvestId, updates) => {
+    const harvest = state.harvests.find(h => h.id === harvestId);
+    if (harvest) {
+      const updatedHarvest = { ...harvest, ...updates };
+      dispatch({ type: actionTypes.UPDATE_HARVEST, payload: updatedHarvest });
+      return updatedHarvest;
+    }
+  };
+  
+  const deleteHarvest = (harvestId) => {
+    // Não permite excluir se for a única safra
+    if (state.harvests.length <= 1) {
+      throw new Error('Não é possível excluir a única safra existente');
+    }
+    
+    // Se for a safra ativa, define outra como ativa
+    if (state.currentHarvest.id === harvestId) {
+      const otherHarvest = state.harvests.find(h => h.id !== harvestId);
+      if (otherHarvest) {
+        setCurrentHarvest(otherHarvest.id);
+      }
+    }
+    
+    dispatch({ type: actionTypes.DELETE_HARVEST, payload: harvestId });
+  };
+  
+  const setCurrentHarvest = (harvestId) => {
+    const harvest = state.harvests.find(h => h.id === harvestId);
+    if (harvest) {
+      const updatedHarvest = { ...harvest, active: true };
+      dispatch({ type: actionTypes.SET_CURRENT_HARVEST, payload: updatedHarvest });
+    }
+  };
+  
+  // Get current harvest services
+  const getCurrentHarvestServices = () => {
+    return state.servicesByHarvest[state.currentHarvest.id] || [];
+  };
+  
+  // Set current safra function (legacy - mantido para compatibilidade)
+  const setCurrentSafra = (safraName) => {
+    const existingHarvest = state.harvests.find(h => h.name === safraName);
+    if (existingHarvest) {
+      setCurrentHarvest(existingHarvest.id);
+    } else {
+      const newHarvest = addHarvest(safraName);
+      setCurrentHarvest(newHarvest.id);
+    }
   };
   
   // Populate system with demo data
@@ -359,12 +474,21 @@ export function AppProvider({ children }) {
     try {
       const dadosDemo = gerarDadosCompletos();
       
-      // Carrega todos os dados de uma vez
+      // Carrega entidades compartilhadas
       dispatch({ type: actionTypes.SET_CLIENTS, payload: dadosDemo.clients });
       dispatch({ type: actionTypes.SET_EMPLOYEES, payload: dadosDemo.employees });
       dispatch({ type: actionTypes.SET_AIRCRAFTS, payload: dadosDemo.aircrafts });
       dispatch({ type: actionTypes.SET_CULTURES, payload: dadosDemo.cultures });
-      dispatch({ type: actionTypes.SET_SERVICES, payload: dadosDemo.services });
+      
+      // Carrega serviços para a safra atual
+      const currentHarvestId = state.currentHarvest.id;
+      dispatch({ 
+        type: actionTypes.SET_SERVICES_FOR_HARVEST, 
+        payload: { 
+          harvestId: currentHarvestId, 
+          services: dadosDemo.services 
+        } 
+      });
       
       console.log('✅ Sistema populado com sucesso!');
       return true;
@@ -381,10 +505,21 @@ export function AppProvider({ children }) {
     state,
     dispatch,
     actionTypes,
+    
+    // Data management
     clearAllData,
+    populateSystemDemo,
+    
+    // Harvest management
+    addHarvest,
+    updateHarvest,
+    deleteHarvest,
+    setCurrentHarvest,
+    getCurrentHarvestServices,
+    
+    // Legacy compatibility
     setCurrentSafra,
-    currentSafra,
-    populateSystemDemo
+    currentSafra
   };
   
   return (
