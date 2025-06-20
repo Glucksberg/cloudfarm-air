@@ -243,34 +243,6 @@ body {
   display: none;
 }
 
-/* Floating Action Button */
-.cf-fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  background-color: var(--cf-primary);
-  color: var(--cf-white);
-  border: none;
-  font-size: 24px;
-  font-weight: var(--cf-font-weight-bold);
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(0, 100, 148, 0.3);
-  transition: all 0.2s ease;
-  z-index: 1000;
-}
-
-.cf-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 16px rgba(0, 100, 148, 0.4);
-}
-
-.cf-fab:active {
-  transform: scale(0.95);
-}
-
 /* Loading spinner */
 .cf-spinner {
   border: 2px solid var(--cf-secondary);

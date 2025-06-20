@@ -2,31 +2,31 @@ import { useServices, useClients, useEmployees, useAircrafts, useCultures } from
 
 // Hook for dashboard metrics and calculations
 export function useDashboard() {
-  const { currentHarvestServices } = useServices();
+  const { services } = useServices();
   const { clients } = useClients();
   const { employees } = useEmployees();
   const { aircrafts } = useAircrafts();
   const { cultures } = useCultures();
   
   // Calculate total area applied
-  const totalAreaApplied = currentHarvestServices.reduce((total, service) => {
+  const totalAreaApplied = services.reduce((total, service) => {
     return total + (parseFloat(service.area) || 0);
   }, 0);
   
   // Calculate total flight hours
-  const totalFlightHours = currentHarvestServices.reduce((total, service) => {
+  const totalFlightHours = services.reduce((total, service) => {
     const inicio = parseFloat(service.horimetroInicio) || 0;
     const final = parseFloat(service.horimetroFinal) || 0;
     return total + Math.max(0, final - inicio);
   }, 0);
   
   // Calculate total translado hours
-  const totalTransladoHours = currentHarvestServices.reduce((total, service) => {
+  const totalTransladoHours = services.reduce((total, service) => {
     return total + (parseFloat(service.translado) || 0);
   }, 0);
   
   // Calculate total revenue
-  const totalRevenue = currentHarvestServices.reduce((total, service) => {
+  const totalRevenue = services.reduce((total, service) => {
     const inicio = parseFloat(service.horimetroInicio) || 0;
     const final = parseFloat(service.horimetroFinal) || 0;
     const hours = Math.max(0, final - inicio);
@@ -35,7 +35,7 @@ export function useDashboard() {
   }, 0);
   
   // Calculate total commission
-  const totalCommission = currentHarvestServices.reduce((total, service) => {
+  const totalCommission = services.reduce((total, service) => {
     const inicio = parseFloat(service.horimetroInicio) || 0;
     const final = parseFloat(service.horimetroFinal) || 0;
     const hours = Math.max(0, final - inicio);
@@ -46,14 +46,14 @@ export function useDashboard() {
   }, 0);
   
   // Service type distribution
-  const serviceTypeDistribution = currentHarvestServices.reduce((acc, service) => {
+  const serviceTypeDistribution = services.reduce((acc, service) => {
     const type = service.tipoServico || 'Outro';
     acc[type] = (acc[type] || 0) + 1;
     return acc;
   }, {});
   
   // Culture distribution
-  const cultureDistribution = currentHarvestServices.reduce((acc, service) => {
+  const cultureDistribution = services.reduce((acc, service) => {
     const culture = cultures.find(c => c.id === service.culturaId);
     const cultureName = culture?.nome || 'Não especificada';
     const area = parseFloat(service.area) || 0;
@@ -62,7 +62,7 @@ export function useDashboard() {
   }, {});
   
   // Monthly hours data for chart
-  const monthlyHours = currentHarvestServices.reduce((acc, service) => {
+  const monthlyHours = services.reduce((acc, service) => {
     const date = new Date(service.data);
     const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
     const inicio = parseFloat(service.horimetroInicio) || 0;
@@ -87,7 +87,7 @@ export function useDashboard() {
       monthlyHours
     },
     counts: {
-      totalServices: currentHarvestServices.length,
+      totalServices: services.length,
       totalClients: clients.length,
       totalEmployees: employees.length,
       totalAircrafts: aircrafts.length,

@@ -1,7 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { useDashboard, useFormatters } from '../hooks/useUtils';
 import { useApp } from '../contexts/AppContext';
+import { useServices } from '../hooks/useEntities';
 import Card from '../components/common/Card';
 import FloatingActionButton from '../components/common/FloatingActionButton';
 import { Plus, TrendingUp, Clock, MapPin, DollarSign } from 'lucide-react';
@@ -9,6 +11,7 @@ import { Plus, TrendingUp, Clock, MapPin, DollarSign } from 'lucide-react';
 function Dashboard() {
   const navigate = useNavigate();
   const { state } = useApp();
+  const { services } = useServices();
   const { metrics, charts, counts } = useDashboard();
   const { formatCurrency, formatNumber } = useFormatters();
   
@@ -16,25 +19,60 @@ function Dashboard() {
     navigate('/servico/novo');
   };
   
-  // Prepare service type chart data
-  const serviceTypeData = Object.entries(charts.serviceTypeDistribution).map(([type, count]) => ({
-    name: type,
-    value: count,
-    percentage: ((count / counts.totalServices) * 100).toFixed(1)
-  }));
+  // Prepare service type chart data - ordenado do maior para o menor
+  const serviceTypeData = Object.entries(charts.serviceTypeDistribution)
+    .map(([type, count]) => ({
+      name: type,
+      value: count,
+      percentage: ((count / counts.totalServices) * 100).toFixed(1)
+    }))
+    .sort((a, b) => b.value - a.value); // Ordenar do maior para o menor
   
-  // Prepare culture chart data
-  const cultureData = Object.entries(charts.cultureDistribution).map(([culture, area]) => ({
-    name: culture,
-    value: area,
-    percentage: ((area / metrics.totalAreaApplied) * 100).toFixed(1)
-  }));
+  // Prepare culture chart data - ordenado do maior para o menor
+  const cultureData = Object.entries(charts.cultureDistribution)
+    .map(([culture, area]) => ({
+      name: culture,
+      value: area,
+      percentage: ((area / metrics.totalAreaApplied) * 100).toFixed(1)
+    }))
+    .sort((a, b) => b.value - a.value); // Ordenar do maior para o menor
   
   // Get recent services for quick overview
-  const recentServices = state.services
-    .filter(service => service.safraId === state.currentHarvest.id)
+  const recentServices = services
     .sort((a, b) => new Date(b.data) - new Date(a.data))
     .slice(0, 3);
+
+  // Custom tooltip for service types
+  const ServiceTypeTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-800">{label}</p>
+          <p className="text-blue-600">
+            {data.value} serviços ({data.percentage}%)
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  // Custom tooltip for cultures
+  const CultureTooltip = ({ active, payload, label }) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <div className="bg-white p-3 border border-gray-200 rounded-lg shadow-lg">
+          <p className="font-semibold text-gray-800">{label}</p>
+          <p className="text-green-600">
+            {formatNumber(data.value)} ha ({data.percentage}%)
+          </p>
+        </div>
+      );
+    }
+    return null;
+  };
   
   return (
     <div className="cf-flex cf-flex-col cf-gap-4">
@@ -119,43 +157,73 @@ function Dashboard() {
       {counts.totalServices > 0 && (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Service Types Chart */}
+            {/* Service Types Bar Chart */}
             <Card title="Tipos de Serviço">
-              <div className="space-y-3">
-                {serviceTypeData.map((item, index) => (
-                  <div key={index} className="cf-flex cf-items-center cf-justify-between">
-                    <div className="cf-flex cf-items-center">
-                      <div 
-                        className="w-4 h-4 rounded mr-3"
-                        style={{ backgroundColor: `hsl(${index * 45}, 70%, 50%)` }}
-                      />
-                      <span className="cf-text-small">{item.name}</span>
-                    </div>
-                    <div className="cf-text-small cf-bold">
-                      {item.value} ({item.percentage}%)
-                    </div>
-                  </div>
-                ))}
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={serviceTypeData}
+                    margin={{
+                      top: 20,
+                      right: 30,
+                      left: 20,
+                      bottom: 60,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                      fontSize={12}
+                      interval={0}
+                    />
+                    <YAxis fontSize={12} />
+                    <Tooltip content={<ServiceTypeTooltip />} />
+                    <Bar 
+                      dataKey="value" 
+                      fill="#3B82F6" 
+                      radius={[4, 4, 0, 0]}
+                      name="Quantidade"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </Card>
             
-            {/* Cultures Chart */}
+            {/* Cultures Bar Chart */}
             <Card title="Culturas por Área">
-              <div className="space-y-3">
-                {cultureData.map((item, index) => (
-                  <div key={index} className="cf-flex cf-items-center cf-justify-between">
-                    <div className="cf-flex cf-items-center">
-                      <div 
-                        className="w-4 h-4 rounded mr-3"
-                        style={{ backgroundColor: `hsl(${index * 60 + 120}, 60%, 50%)` }}
-                      />
-                      <span className="cf-text-small">{item.name}</span>
-                    </div>
-                    <div className="cf-text-small cf-bold">
-                      {formatNumber(item.value)} ha ({item.percentage}%)
-                    </div>
-                  </div>
-                ))}
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={cultureData}
+                    margin={{
+                      top: 20,
+                      right: 30,
+                      left: 20,
+                      bottom: 60,
+                    }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
+                    <XAxis 
+                      dataKey="name" 
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                      fontSize={12}
+                      interval={0}
+                    />
+                    <YAxis fontSize={12} />
+                    <Tooltip content={<CultureTooltip />} />
+                    <Bar 
+                      dataKey="value" 
+                      fill="#10B981" 
+                      radius={[4, 4, 0, 0]}
+                      name="Área (ha)"
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
               </div>
             </Card>
           </div>
